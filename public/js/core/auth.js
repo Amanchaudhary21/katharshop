@@ -80,7 +80,7 @@ const loadGoogle = () => gsiLoad || (gsiLoad = new Promise((ok, fail) => {
 /* ---------- The sign-in screen (shown instead of the store) ---------- */
 function showLogin() {
   const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 15L8 5h24l3 10z" fill="currentColor"/><path d="M12.5 5L11.5 15M20 5v10M27.5 5l1 10" stroke="var(--g-logo-gap)" stroke-width="3"/><path d="M5 15q3.75 5 7.5 0 3.75 5 7.5 0 3.75 5 7.5 0 3.75 5 7.5 0z" fill="var(--accent)"/><path d="M9 21v13h22V21" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><rect x="16" y="26" width="8" height="8" fill="currentColor"/></svg>`;
-  const PERKS = ["Your own cart, wish list and orders", "Sell your items with just a photo", "Free delivery on orders over $35"].map(s => `<li>${t(s)}</li>`).join("");
+  const PERKS = [t("Your own cart, wish list and orders"), t("Sell your items with just a photo"), t("Free delivery on orders over {amount}", { amount: money(FREE_SHIP_MIN) })].map(s => `<li>${s}</li>`).join("");
   const gate = document.createElement("div");
   gate.id = "gate";
   gate.innerHTML = `<div class="g-wrap">

@@ -42,8 +42,8 @@ async function connect() {
     cat VARCHAR(40) NOT NULL,
     art VARCHAR(40) NOT NULL DEFAULT 'box',
     title VARCHAR(200) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    was DECIMAL(10,2) NOT NULL DEFAULT 0,
+    price DECIMAL(12,4) NOT NULL,          -- US dollars, 4 decimals: rupee and yen prices convert back exactly
+    was DECIMAL(12,4) NOT NULL DEFAULT 0,
     rating DECIMAL(3,1) NOT NULL DEFAULT 0,
     n INT NOT NULL DEFAULT 0,
     stock INT NOT NULL DEFAULT 0,
@@ -56,6 +56,9 @@ async function connect() {
     mine BOOLEAN NOT NULL DEFAULT FALSE,
     created DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
   ) CHARACTER SET utf8mb4`);
+  // databases made before prices had 4 decimals
+  const [[col]] = await pool.query("SELECT NUMERIC_SCALE AS s FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'price'");
+  if (col && col.s < 4) await pool.query("ALTER TABLE products MODIFY price DECIMAL(12,4) NOT NULL, MODIFY was DECIMAL(12,4) NOT NULL DEFAULT 0");
   await pool.query(`CREATE TABLE IF NOT EXISTS owner_sessions (
     token CHAR(64) PRIMARY KEY,
     email VARCHAR(200) NOT NULL,

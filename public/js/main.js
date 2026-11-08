@@ -19,6 +19,7 @@ $(".masthead .actions").insertAdjacentHTML("afterbegin", langPicker("langSel"));
 $("#catNav").innerHTML = `<li><a class="deal" href="#/deals" data-cat="deals">${t("Today's deals")}</a></li><li><a href="#/s" data-cat="all">${t("All products")}</a></li>` +
   CATS.map(c => `<li><a href="#/c/${c.id}" data-cat="${c.id}">${esc(c.name)}</a></li>`).join("");
 hscroll($("#catNav")); // ‹ › buttons when the departments don't fit
+$("#freeShipNote").textContent = t("Free delivery on orders over {amount}", { amount: money(FREE_SHIP_MIN) }); // footer, in the shopper's currency
 $("#searchCat").insertAdjacentHTML("beforeend", CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(""));
 
 /* theme: follows the device until the shopper picks one with the button */

@@ -86,7 +86,14 @@ VIEWS.home = () => {
 };
 
 /* ---------- Product lists: category, deals, search ---------- */
-const PRICE_BANDS = [["", "Any price"], ["0-25", "Under $25"], ["25-50", "$25 to $50"], ["50-100", "$50 to $100"], ["100-250", "$100 to $250"], ["250-", "$250 and above"]].map(([v, l]) => [v, t(l)]);
+/* Price filter: 25, 50, 100 and 250 dollars, as round numbers in the shopper's currency (रू 3,800, ￥4,000 ...) */
+const PRICE_BANDS = (() => {
+  const [a, b, c, d] = [25, 50, 100, 250].map(shopFee);
+  const m = x => Number.isInteger(x) ? CUR.symbol + fmtNum(x) : money(x); // "$25", not "$25.00"
+  const range = (x, y) => t("{min} to {max}", { min: m(x), max: m(y) });
+  return [["", t("Any price")], [`0-${a}`, t("Under {amount}", { amount: m(a) })], [`${a}-${b}`, range(a, b)],
+    [`${b}-${c}`, range(b, c)], [`${c}-${d}`, range(c, d)], [`${d}-`, t("{amount} and above", { amount: m(d) })]];
+})();
 const SORTS = [["featured", "Featured"], ["price-asc", "Price: low to high"], ["price-desc", "Price: high to low"], ["rating", "Average rating"], ["new", "Newest arrivals"], ["off", "Biggest discount"]].map(([v, l]) => [v, t(l)]);
 const fresh = key => ({ key, sort: "featured", band: "", min: "", max: "", rating: 0, sale: false, stock: false, cat: "" });
 let LF = fresh(""), LB = [];

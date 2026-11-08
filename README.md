@@ -108,8 +108,8 @@ Each file uses things made by the files above it.
 Edit, save with Ctrl+S, then press F5 in the browser.
 
 - `public/index.html`: find `<span>shopnest</span>` and type your own shop name.
-- `public/js/core/data.js`: find `const FREE_SHIP_MIN` and change `SHIP_STD = 4.99` to `SHIP_STD = 2.99`.
-  Standard delivery now costs $2.99.
+- `public/js/core/data.js`: find `const FREE_SHIP_MIN` and change `shopFee(4.99)` to `shopFee(2.99)`.
+  Standard delivery now costs $2.99 (and the same, rounded, in rupees and yen).
 - `public/js/core/data.js`: change the words of a department in `CATS`. It changes everywhere.
 - `public/css/style.css`: the colors are the variables at the very top (`--brand`, `--accent` ...).
   The first block is the light theme; the dark theme blocks come right after it.
@@ -127,6 +127,24 @@ The text is written in English in the code, wrapped like `t("Add to cart")`. Eac
 When you add new text, add it to all three files too; anything missing simply shows in English.
 Text in `index.html` marked with `data-t` is translated the same way.
 Products you add with "Sell an item" keep the words you typed.
+
+### Prices in each language's currency
+
+| Language | Currency | Example |
+| --- | --- | --- |
+| नेपाली | Nepali rupee | रू १,९९९ |
+| English | US dollar | $13.28 |
+| हिन्दी | Indian rupee | ₹1,249 |
+| 日本語 | Japanese yen | ￥2,102 |
+
+Prices are saved in US dollars (also in MySQL), and the store converts them when it shows them,
+so changing the language changes every price by itself. On the Sell page you type the price in your
+language's currency; it is saved in dollars with 4 decimals, so it comes back exactly as you typed it.
+Delivery fees and the free-delivery limit become round numbers in each currency (रू 5,300, ₹3,300, ￥5,500).
+Orders keep the currency they were paid in.
+
+The exchange rates are `CURRENCIES` at the top of `public/js/core/data.js` (how much 1 US dollar is).
+Change a rate there and every price follows.
 
 ## Signing in
 

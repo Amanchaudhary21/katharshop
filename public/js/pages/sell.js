@@ -10,7 +10,6 @@ let sellPhoto = "";
 const SELL_RULES = {
   title: v => v.length >= 3 || t("Give your item a name (at least 3 letters)."),
   price: v => Number(v) > 0 || t("Enter a price above 0."),
-  was: v => !v || Number(v) > Number($("#sl_price").value) || t("The old price must be higher than the price, or leave it empty."),
   stock: v => (Number.isInteger(Number(v)) && Number(v) >= 0) || t("Enter a whole number, like 10.")
 };
 
@@ -74,10 +73,10 @@ VIEWS.sell = (r = {}) => {
       <section class="panel stack" aria-labelledby="h-info"><h2 id="h-info" style="${H2S}">2. ${t("Details")}</h2>
         <div class="form-grid">
           <div class="wide">${sellField("title", t("Item name"), `type="text" maxlength="90" value="${esc(r.title || "")}"`)}</div>
-          ${sellField("price", t("Price ($)"), 'type="number" min="0.01" step="0.01" inputmode="decimal"')}
-          ${sellField("was", t("Old price ($)"), 'type="number" min="0" step="0.01" inputmode="decimal"', t("Optional. Shows a sale badge."))}
-          <div class="field"><label for="sl_cat">${t("Department")}</label><select id="sl_cat" name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === r.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+          ${/* the price is typed in the shopper's currency (dollars, rupees or yen) and saved in US dollars */
+            sellField("price", t("Price ({symbol})", { symbol: CUR.symbol.trim() }), CUR.digits ? 'type="number" min="0.01" step="0.01" inputmode="decimal"' : 'type="number" min="1" step="1" inputmode="numeric"')}
           ${sellField("stock", t("How many in stock"), 'type="number" min="0" step="1" value="10" inputmode="numeric"')}
+          <div class="field wide"><label for="sl_cat">${t("Department")}</label><select id="sl_cat" name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === r.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
           <div class="field wide"><label for="sl_about">${t("About this item")}</label><textarea id="sl_about" name="about" maxlength="600" placeholder="${t("One point per line")}"></textarea></div>
         </div>
         <button class="btn brand block" type="submit">${t("Save item to the shop")}</button>
@@ -128,9 +127,10 @@ FORM.sellForm = async () => {
   const about = val("about").split("\n").map(s => s.trim()).filter(Boolean);
   if (API_URL) return saveToServer(val, about);
   const id = Math.max(1000, ...P.map(p => p.id)) + 1;
-  const p = mk(id, val("cat"), "box", val("title"), round2(Number(val("price"))), round2(Number(val("was")) || 0), 0, 0, Number(val("stock")),
+  const p = mk(id, val("cat"), "box", val("title"), 0, 0, 0, 0, Number(val("stock")),
     C(["Default", "#8A9BA8"]), about.length ? about : ["Added by you on this device"], [["Seller", USER.first]], "", 1);
   p.photo = sellPhoto; p.mine = true; p.owner = USER.id;
+  p.usd = toUsd(Number(val("price"))); p.usdWas = 0; inShopCurrency(p); // saved in US dollars, shown in this currency
   P.push(p); PM.set(id, p);
   if (!saveMine()) {
     unlist(id);
@@ -154,7 +154,7 @@ async function saveToServer(val, about) {
   let j;
   try {
     j = await api("/products", { method: "POST", body: JSON.stringify({
-      cat: val("cat"), title: val("title"), price: round2(Number(val("price"))), was: round2(Number(val("was")) || 0),
+      cat: val("cat"), title: val("title"), price: toUsd(Number(val("price"))), was: 0, // US dollars
       stock: Number(val("stock")), bullets: about, photo: sellPhoto, seller: USER.first || "" }) });
   } catch (e) {
     btn.disabled = false;

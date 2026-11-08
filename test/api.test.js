@@ -109,6 +109,17 @@ test("the live site may call the API, other sites may not", async () => {
   assert.equal((await ask("https://evil.example")).get("access-control-allow-origin"), null);
 });
 
+test("prices keep 4 decimals, so a price typed in rupees or yen converts back exactly", async () => {
+  const token = await owner();
+  // ￥1,999 at 158.32 yen to the dollar = 12.62633... dollars -> saved as 12.6263 -> shown as ￥1,999 again
+  const p = (await call("POST", "/products", vase({ price: 1999 / 158.32, was: 0 }), token)).body;
+  assert.equal(p.price, 12.6263);
+  assert.equal(Math.round(p.price * 158.32), 1999);
+  const [[row]] = await db().query("SELECT price FROM products WHERE id = ?", [p.id]);
+  assert.equal(row.price, 12.6263);
+  await call("DELETE", `/products/${p.id}`, null, token);
+});
+
 test("bad products are refused", async () => {
   const token = await owner();
   for (const bad of [{ title: "ab" }, { cat: "nope" }, { price: 0 }, { was: 4, price: 5 }, { photo: "http://x/y.jpg" }, { stock: -1 }]) {

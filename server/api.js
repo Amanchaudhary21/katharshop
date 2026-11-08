@@ -11,7 +11,8 @@ const { db, insertProducts } = require("./db");
 const { CATEGORIES } = require("./catalog");
 
 const MAX_PHOTO = 1_500_000; // a data: URL; the Sell page shrinks photos to 600 px (about 100 KB)
-const round2 = n => Math.round(n * 100) / 100;
+// prices are US dollars with 4 decimals, so rupee and yen prices typed on the Sell page convert back exactly
+const round4 = n => Math.round(n * 10000) / 10000;
 
 function makeApi({ ownerEmails, ownerPassword }) {
   const api = express.Router();
@@ -86,7 +87,7 @@ function makeApi({ ownerEmails, ownerPassword }) {
     const seller = (typeof b.seller === "string" && b.seller.trim() ? b.seller.trim() : "ShopNest").slice(0, 60);
 
     const product = {
-      cat: b.cat, art: "box", title, price: round2(price), was: round2(was), rating: 0, n: 0, stock, kw: "", age: 1,
+      cat: b.cat, art: "box", title, price: round4(price), was: round4(was), rating: 0, n: 0, stock, kw: "", age: 1,
       colors: [{ name: "Default", hex: "#8A9BA8" }], bullets: bullets.length ? bullets : ["Added by the shop owner"],
       specs: [["Seller", seller]], photo, mine: true, created: new Date()
     };

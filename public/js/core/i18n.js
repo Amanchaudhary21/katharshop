@@ -28,7 +28,8 @@ function t(s, vars) {
 const NE_MONTHS = ["जनवरी", "फेब्रुअरी", "मार्च", "अप्रिल", "मे", "जुन", "जुलाई", "अगस्ट", "सेप्टेम्बर", "अक्टोबर", "नोभेम्बर", "डिसेम्बर"];
 const NE_DAYS = ["आइत", "सोम", "मङ्गल", "बुध", "बिही", "शुक्र", "शनि"];
 const neDigits = s => String(s).replace(/\d/g, d => "०१२३४५६७८९"[d]);
-const fmtNum = (n, opts) => (LANG === "ne" ? neDigits(new Intl.NumberFormat("en-US", opts).format(n)) : new Intl.NumberFormat(LOCALE, opts).format(n));
+// Nepali groups big numbers in lakhs like India (1,50,580), so it is formatted as en-IN, then gets Devanagari digits
+const fmtNum = (n, opts) => (LANG === "ne" ? neDigits(new Intl.NumberFormat("en-IN", opts).format(n)) : new Intl.NumberFormat(LOCALE, opts).format(n));
 function fmtDate(date, opts) {
   const d = new Date(date);
   if (LANG !== "ne") return new Intl.DateTimeFormat(LOCALE, opts).format(d);

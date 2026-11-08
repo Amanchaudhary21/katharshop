@@ -141,7 +141,8 @@ FORM.emForm = async () => {
 /* ---------- Your profile ---------- */
 VIEWS.account = () => {
   const u = USER, ways = signInWays(u), logins = u.logins || [];
-  const spent = round2(state.orders.reduce((s, o) => s + (o.total || 0), 0));
+  // each order in the shopper's currency (orders keep the currency they were paid in; old ones are dollars)
+  const spent = roundCur(state.orders.reduce((s, o) => s + fromCur(o.total || 0, o.cur || "USD"), 0));
   const row = (label, value) => `<div class="pf-row"><dt>${t(label)}</dt><dd>${value}</dd></div>`;
   const none = `<span class="muted">${t("Not added")}</span>`;
   const stat = (n, label, href) => `<a class="pf-stat" href="${href}"><b>${typeof n === "number" ? num(n) : n}</b><span>${t(label)}</span></a>`;

@@ -7,8 +7,7 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-const money = n => fmtNum(n, { style: "currency", currency: "USD" });
-const round2 = n => Math.round(n * 100) / 100;
+const round2 = n => Math.round(n * 100) / 100; // (money() and the currencies are in data.js)
 const catName = id => (CATS.find(c => c.id === id) || {}).name || "";
 const disc = p => (p.was ? Math.round((1 - p.price / p.was) * 100) : 0);
 const when = d => fmtDate(d, { weekday: "short", month: "short", day: "numeric" });
@@ -54,13 +53,14 @@ function cartSet(id, v, q) {
 }
 function totals() {
   const items = state.cart.map(l => ({ ...l, p: PM.get(l.id) })).filter(l => l.p);
-  const sub = round2(items.reduce((s, l) => s + l.p.price * l.q, 0));
+  // all in the shopper's currency, rounded like it is shown (cents, or whole rupees and yen)
+  const sub = roundCur(items.reduce((s, l) => s + l.p.price * l.q, 0));
   const count = items.reduce((s, l) => s + l.q, 0);
   const cp = state.coupon && COUPONS[state.coupon];
-  const off = cp && cp.kind === "pct" ? round2(sub * cp.value / 100) : 0;
+  const off = cp && cp.kind === "pct" ? roundCur(sub * cp.value / 100) : 0;
   let ship = 0;
   if (items.length) ship = state.ship === "exp" ? SHIP_EXP : (sub >= FREE_SHIP_MIN || (cp && cp.kind === "ship") ? 0 : SHIP_STD);
-  return { items, count, sub, off, ship, total: round2(sub - off + ship), toFree: Math.max(0, round2(FREE_SHIP_MIN - sub)) };
+  return { items, count, sub, off, ship, total: roundCur(sub - off + ship), toFree: Math.max(0, roundCur(FREE_SHIP_MIN - sub)) };
 }
 function updateCounts() {
   const n = state.cart.reduce((s, l) => s + l.q, 0);
@@ -122,9 +122,9 @@ async function api(path, opts = {}) {
   return res.json();
 }
 /* A product the owner added, as the server sends it (toJson in server/api.js) */
-const fromServer = j => Object.assign(
+const fromServer = j => inShopCurrency(Object.assign(
   mk(j.id, j.cat, j.art || "box", j.title, j.price, j.was, j.rating, j.n, j.stock, j.colors, j.bullets, j.specs, j.kw, j.age),
-  { photo: j.photo, mine: true, created: j.created });
+  { photo: j.photo, mine: true, created: j.created, usd: j.price, usdWas: j.was || 0 })); // the server's prices are in US dollars
 /* Keep a copy of the server's added products, so they show straight away on the next visit */
 const saveSrvAdded = () => {
   try { localStorage.setItem("bz:srvAdded", JSON.stringify(P.filter(p => p.mine))); }

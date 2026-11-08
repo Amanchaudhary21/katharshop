@@ -131,8 +131,12 @@ const payKind = () => PAY[CO.pay][2];
 const randDigits = n => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join("");
 const deadline = days => when(addDays(days)) + ", 23:59";
 const TEST_CARDS = { "4242424242424242": "Visa", "5555555555554444": "Mastercard", "3566002020360505": "JCB", "378282246310005": "American Express", "4000000000000002": "decline" };
-const YEN_RATE = 150; // demo exchange rate for the QR apps, which charge in yen
-const yen = usd => fmtNum(Math.round(usd * YEN_RATE), { style: "currency", currency: "JPY" });
+/* The QR apps, konbini and bank transfer charge in yen: an amount in the shopper's currency -> yen
+   (the rates are CURRENCIES in data.js) */
+const toYen = amount => Math.round(amount / CUR.rate * CURRENCIES.ja.rate);
+const yen = amount => money(toYen(amount), "JPY");
+/* the currency an order was paid in (orders made before currencies were dollars) */
+const orderCur = o => o.cur || "USD";
 const digits = v => v.replace(/\D/g, "");
 const luhn = n => [...n].reverse().reduce((s, d, i) => { let x = +d; if (i % 2) { x *= 2; if (x > 9) x -= 9; } return s + x; }, 0) % 10 === 0;
 const CARD_RULES = {
@@ -167,7 +171,7 @@ function payBox() {
     ${cardField("exp", t("Expiry (MM/YY)"), false, 'inputmode="numeric" maxlength="5" placeholder="MM/YY"')}
     ${cardField("cvc", t("Security code"), false, 'inputmode="numeric" maxlength="4" placeholder="123"')}
     <div class="wide row" style="gap:10px;align-items:center"><button class="btn small" type="button" data-act="testcard">${t("Fill in a test card")}</button><span class="muted" style="font-size:.85rem">${t("Test card: 4242 4242 4242 4242, any future date, any 3 digits.")}</span></div></div>`;
-  const amt = `<b>${yen(totals().total)}</b> ${t("(about {amount})", { amount: money(totals().total) })}`;
+  const amt = `<b>${yen(totals().total)}</b>${CUR.code === "JPY" ? "" : " " + t("(about {amount})", { amount: money(totals().total) })}`;
   if (CO.pay === "konbini") return `<div class="field"><label for="pay_store">${t("Which store will you pay at?")}</label><select id="pay_store" data-chg="konbini">${KONBINI.map(s => `<option${s === CO.konbini ? " selected" : ""}>${s}</option>`).join("")}</select></div>
     <p class="muted">${t("After you place the order you get a payment number. Show it at the register (or type it into the store's kiosk) and pay {amount} in cash by {when}. We ship once you have paid.", { amount: amt, when: `<b>${deadline(3)}</b>` })}</p>`;
   if (CO.pay === "bank") return `<p class="muted">${t("After you place the order you see our bank account. Transfer {amount} by {when} from your bank, a Japan Post Bank ATM or Pay-easy. Put your order number in the transfer name. Bank fees are paid by you. We ship once the money arrives.", { amount: amt, when: `<b>${deadline(7)}</b>` })}</p>`;
@@ -219,7 +223,7 @@ function qrPay(id, total, done) {
   dlg.className = "qr-dialog pay-" + CO.pay;
   dlg.setAttribute("aria-labelledby", "qrTitle");
   dlg.innerHTML = `<div class="qr-head"><h2 id="qrTitle">${t("Pay with {app}", { app })}</h2><button class="btn small" type="button" data-qr="cancel" aria-label="${t("Cancel payment")}">${t("Cancel")}</button></div>
-    <p class="qr-amount">${yen(total)} <span class="muted">${t("(about {amount})", { amount: money(total) })}</span></p>
+    <p class="qr-amount">${yen(total)}${CUR.code === "JPY" ? "" : ` <span class="muted">${t("(about {amount})", { amount: money(total) })}</span>`}</p>
     <div class="qr-code" id="qrCode"><span class="muted">${t("Making your QR code…")}</span></div>
     <p class="qr-timer" id="qrTimer" aria-live="polite"></p>
     <ol class="qr-steps"><li>${t("Open the {app} app on your phone.", { app })}</li><li>${t("Tap <b>Scan</b>.")}</li><li>${t("Point the camera at this code and confirm the amount.")}</li></ol>
@@ -231,7 +235,7 @@ function qrPay(id, total, done) {
   const draw = () => {
     loadQR().then(qrcode => {
       const q = qrcode(0, "M");
-      q.addData(`https://example.com/shopnest-demo-pay?app=${CO.pay}&order=${id}&jpy=${Math.round(total * YEN_RATE)}`);
+      q.addData(`https://example.com/shopnest-demo-pay?app=${CO.pay}&order=${id}&jpy=${toYen(total)}`);
       q.make();
       $("#qrCode", dlg).innerHTML = q.createSvgTag({ cellSize: 6, margin: 3, scalable: true });
       $("#qrCode svg", dlg).setAttribute("aria-label", t("QR code to pay {amount} with {app}", { amount: yen(total), app }));
@@ -314,6 +318,7 @@ function placeOrder(id, tot, payLabel, payInfo) {
   state.orders.unshift({
     id, date: new Date().toISOString(),
     items: tot.items.map(l => ({ id: l.id, v: l.v, q: l.q, price: l.p.price })),
+    cur: CUR.code, // the amounts below are in this currency (orders made before currencies have none: dollars)
     sub: tot.sub, off: tot.off, ship: tot.ship, total: tot.total, coupon: state.coupon || "",
     speed: state.ship, eta: deliveryRange(state.ship === "exp"), pay: payLabel, payInfo: payInfo || null,
     to: { name: CO.name, place: `${CO.city}, ${CO.country}` }
@@ -342,12 +347,12 @@ VIEWS.done = r => {
       <div class="row" style="justify-content:center"><a class="btn primary" href="#/orders">${t("View your orders")}</a><a class="btn" href="#/">${t("Keep shopping")}</a></div>
     </div>
     <section class="panel" style="max-width:680px;margin:8px auto 0" aria-label="${t("Order details")}">
-      ${o.items.map(it => orderLine(it, false)).join("")}
+      ${o.items.map(it => orderLine(it, false, orderCur(o))).join("")}
       <div class="receipt" style="position:relative;top:0;border:0;padding:12px 0 0">
-        <div class="r"><span>${t("Items")}</span><span>${money(o.sub)}</span></div>
-        ${o.off ? `<div class="r"><span>${t("Discount")} (${esc(o.coupon)})</span><span>-${money(o.off)}</span></div>` : ""}
-        <div class="r"><span>${t("Delivery")}</span><span>${o.ship ? money(o.ship) : t("FREE")}</span></div>
-        <div class="r total"><span>${t("Total")}</span><span>${money(o.total)}</span></div>
+        <div class="r"><span>${t("Items")}</span><span>${money(o.sub, orderCur(o))}</span></div>
+        ${o.off ? `<div class="r"><span>${t("Discount")} (${esc(o.coupon)})</span><span>-${money(o.off, orderCur(o))}</span></div>` : ""}
+        <div class="r"><span>${t("Delivery")}</span><span>${o.ship ? money(o.ship, orderCur(o)) : t("FREE")}</span></div>
+        <div class="r total"><span>${t("Total")}</span><span>${money(o.total, orderCur(o))}</span></div>
       </div>
     </section>`
   };
@@ -367,19 +372,19 @@ function payHowTo(o) {
   return "";
 }
 
-function orderLine(it, again) {
+function orderLine(it, again, cur) {
   const p = PM.get(it.id);
   if (!p) return "";
   const col = p.colors[it.v % p.colors.length];
-  return `<div class="line">${art(p, it.v)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${p.colors.length > 1 ? esc(col.name) + " · " : ""}${t("Qty {n}", { n: num(it.q) })}</span>${again ? `<div><button class="btn small" type="button" data-act="again" data-id="${p.id}" data-v="${it.v}" ${p.stock < 1 ? "disabled" : ""}>${p.stock < 1 ? t("Unavailable") : t("Buy it again")}</button></div>` : ""}</div><div class="line-total">${money(it.price * it.q)}</div></div>`;
+  return `<div class="line">${art(p, it.v)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${p.colors.length > 1 ? esc(col.name) + " · " : ""}${t("Qty {n}", { n: num(it.q) })}</span>${again ? `<div><button class="btn small" type="button" data-act="again" data-id="${p.id}" data-v="${it.v}" ${p.stock < 1 ? "disabled" : ""}>${p.stock < 1 ? t("Unavailable") : t("Buy it again")}</button></div>` : ""}</div><div class="line-total">${money(it.price * it.q, cur)}</div></div>`;
 }
 VIEWS.orders = () => {
   if (!state.orders.length) return { html: `<h1 class="sr" id="ordTitle" tabindex="-1">${t("Your orders")}</h1>${emptyState(t("No orders yet"), t("Orders you place in this demo show up here."), "#/", t("Start shopping"))}` };
   return {
     html: `<div class="sec-head" style="margin-top:0"><h1 id="ordTitle" tabindex="-1">${t("Your orders")}</h1><button class="btn small" type="button" data-act="clearorders">${t("Clear demo orders")}</button></div>
     <div class="stack" style="gap:16px">${state.orders.map(o => `<article class="order" aria-label="${t("Order {id}", { id: esc(o.id) })}">
-      <div class="order-head"><div><span class="muted">${t("Order placed")}</span><b>${esc(dateFmt(o.date))}</b></div><div><span class="muted">${t("Total")}</span><b>${money(o.total)}</b></div><div><span class="muted">${t("Ship to")}</span><b>${esc(o.to.name)}</b></div><div><span class="muted">${t("Order number")}</span><b class="mono">${esc(o.id)}</b></div></div>
-      <div class="order-body"><p class="muted" style="padding-top:6px">${t("Pretend delivery: {when}", { when: esc(o.eta) })}${o.pay ? ` · ${t("Paid with")} ${esc(o.pay)}` : ""}</p>${o.items.map(it => orderLine(it, true)).join("")}</div></article>`).join("")}</div>`
+      <div class="order-head"><div><span class="muted">${t("Order placed")}</span><b>${esc(dateFmt(o.date))}</b></div><div><span class="muted">${t("Total")}</span><b>${money(o.total, orderCur(o))}</b></div><div><span class="muted">${t("Ship to")}</span><b>${esc(o.to.name)}</b></div><div><span class="muted">${t("Order number")}</span><b class="mono">${esc(o.id)}</b></div></div>
+      <div class="order-body"><p class="muted" style="padding-top:6px">${t("Pretend delivery: {when}", { when: esc(o.eta) })}${o.pay ? ` · ${t("Paid with")} ${esc(o.pay)}` : ""}</p>${o.items.map(it => orderLine(it, true, orderCur(o))).join("")}</div></article>`).join("")}</div>`
   };
 };
 ACT.again = el => {
