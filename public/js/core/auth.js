@@ -10,9 +10,11 @@
 /* ---------- Google sign-in setup ----------
    Paste your own Google "OAuth client ID" between the quotes to turn on the
    "Sign in with Google" button. README.md explains how to get one (free).
-   Google sign-in only works when the store is opened through start.bat
-   (http://localhost:8080), not by double-clicking index.html. */
-const GOOGLE_CLIENT_ID = "";
+   Google sign-in works on the live site (https://amanchaudhary21.github.io) and on
+   http://localhost:8080 (start.bat / npm start), as long as both addresses are listed
+   under "Authorized JavaScript origins" for your Client ID. It does not work when
+   index.html is opened by double-clicking it. */
+const GOOGLE_CLIENT_ID = "1014530565910-58qe3k87k41h70bpdu61qc2tckepdths.apps.googleusercontent.com";
 
 /* ---------- Store owner ----------
    Only these accounts can add or delete products ("Sell an item").
@@ -343,7 +345,13 @@ function showLogin() {
     }
     slot.innerHTML = `<p class="g-hint" style="text-align:center">Loading Google…</p>`;
     loadGoogle().then(() => {
-      if (!mountGoogle.ready) { google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: r => onGoogle(r.credential) }); mountGoogle.ready = true; }
+      if (!mountGoogle.ready) {
+        /* a random one-time value: Google puts it inside the signed token, and we check it comes back unchanged */
+        const nonce = crypto.getRandomValues(new Uint32Array(4)).join("-");
+        try { sessionStorage.setItem("bz:nonce", nonce); } catch (x) { /* blocked */ }
+        google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, nonce, callback: r => onGoogle(r.credential) });
+        mountGoogle.ready = true;
+      }
       slot.innerHTML = "";
       google.accounts.id.renderButton(slot, { theme: "outline", size: "large", shape: "pill", text: "continue_with", width: Math.max(220, Math.min(400, slot.clientWidth || 360)) });
     }).catch(() => { slot.innerHTML = `<p class="g-setup">Could not reach Google. Check your internet connection, then reload.</p>`; });
@@ -351,7 +359,9 @@ function showLogin() {
   function onGoogle(token) {
     let g;
     try { g = readGoogleToken(token); } catch (x) { return err("Google sign-in did not work. Please try again."); }
-    if (g.aud !== GOOGLE_CLIENT_ID || g.exp * 1000 < Date.now() || !g.email) return err("Google sign-in did not work. Please try again.");
+    let nonce = ""; try { nonce = sessionStorage.getItem("bz:nonce") || ""; } catch (x) { /* blocked */ }
+    const issuer = g.iss === "https://accounts.google.com" || g.iss === "accounts.google.com";
+    if (g.aud !== GOOGLE_CLIENT_ID || !issuer || (nonce && g.nonce !== nonce) || g.exp * 1000 < Date.now() || !g.email || g.email_verified === false) return err("Google sign-in did not work. Please try again.");
     const mail = cleanEmail(g.email), users = AUTH.users();
     let user = users.find(u => u.google === g.sub) || users.find(u => u.email === mail);
     if (user) Object.assign(user, { google: g.sub, picture: g.picture || user.picture });
