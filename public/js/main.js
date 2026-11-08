@@ -134,11 +134,22 @@ const markStuck = () => topnav.classList.toggle("stuck", scrollY > 0);
 markStuck();
 addEventListener("scroll", markStuck, { passive: true });
 
-/* Reload button in the header: loads the whole page again (new products, newest files) */
-$("#reloadBtn").addEventListener("click", e => {
-  e.currentTarget.classList.add("spin");
+/* Reload button in the header: loads the whole page again (new products, newest files).
+   Afterwards the page starts at the top and says "Page reloaded", so you can see it worked. */
+$("#reloadBtn").addEventListener("click", async e => {
+  const btn = e.currentTarget;
+  if (btn.classList.contains("spin")) return;
+  btn.classList.add("spin");
+  try { sessionStorage.setItem("bz:reloaded", "1"); } catch (x) { /* blocked */ }
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // don't jump back to the old place
+  try { // fetch the newest offline-app file too
+    const reg = "serviceWorker" in navigator && await navigator.serviceWorker.getRegistration();
+    if (reg) await Promise.race([reg.update(), new Promise(r => setTimeout(r, 1500))]);
+  } catch (x) { /* offline: reload anyway */ }
   location.reload();
 });
+const justReloaded = (() => { try { const v = sessionStorage.getItem("bz:reloaded"); sessionStorage.removeItem("bz:reloaded"); return !!v; } catch (e) { return false; } })();
+if (justReloaded && "scrollRestoration" in history) history.scrollRestoration = "manual"; // start at the top, not where you were
 
 $("#topBtn").addEventListener("click", () => { window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); $("#main").focus({ preventScroll: true }); });
 $("#resetBtn").addEventListener("click", () => {
@@ -192,6 +203,14 @@ if (USER) {
   updateCounts();
   show(location.hash.startsWith("#/") ? location.hash.slice(1) : "/", false);
   syncSearch();
+  if (justReloaded) {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    toast(t("Page reloaded"));
+    addEventListener("load", () => setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      if ("scrollRestoration" in history) history.scrollRestoration = "auto"; // F5 keeps your place as usual
+    }, 0), { once: true });
+  }
   if (API_URL) {
     syncShop();
     setInterval(syncShop, 30000);

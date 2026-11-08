@@ -14,6 +14,7 @@ I18N.ja = {
   "Suggestions": "候補",
   "Switch light or dark theme": "ライト/ダークテーマを切り替え",
   "Reload page": "ページを再読み込み",
+  "Page reloaded": "ページを再読み込みしました",
   "Sell an item": "商品を出品",
   "Wish list": "ほしい物リスト",
   "Your orders": "注文履歴",
