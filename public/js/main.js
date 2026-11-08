@@ -134,6 +134,12 @@ const markStuck = () => topnav.classList.toggle("stuck", scrollY > 0);
 markStuck();
 addEventListener("scroll", markStuck, { passive: true });
 
+/* Reload button in the header: loads the whole page again (new products, newest files) */
+$("#reloadBtn").addEventListener("click", e => {
+  e.currentTarget.classList.add("spin");
+  location.reload();
+});
+
 $("#topBtn").addEventListener("click", () => { window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); $("#main").focus({ preventScroll: true }); });
 $("#resetBtn").addEventListener("click", () => {
   try { Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k)); } catch (e) { /* blocked */ }

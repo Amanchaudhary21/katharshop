@@ -13,6 +13,7 @@ I18N.ne = {
   "Search": "खोज",
   "Suggestions": "सुझावहरू",
   "Switch light or dark theme": "उज्यालो वा अँध्यारो थिम बदल्नुहोस्",
+  "Reload page": "पेज फेरि लोड गर्नुहोस्",
   "Sell an item": "सामान बेच्नुहोस्",
   "Wish list": "इच्छा सूची",
   "Your orders": "तपाईंका अर्डरहरू",

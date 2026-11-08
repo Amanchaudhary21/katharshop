@@ -610,3 +610,8 @@ html.locked body > :not(#gate):not(svg) { display: none !important; }
 .pay-howto h2 { font-size: 1.05rem; margin-bottom: 4px; }
 .pay-howto .r { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 4px; border-bottom: 1px dashed var(--line); }
 .pay-howto .r b { overflow-wrap: anywhere; }
+
+/* reload button in the header: the arrow turns while the page loads again */
+#reloadBtn.spin svg { animation: reload-spin .7s linear infinite; }
+@keyframes reload-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #reloadBtn.spin svg { animation: none; } }

@@ -13,6 +13,7 @@ I18N.hi = {
   "Search": "खोज",
   "Suggestions": "सुझाव",
   "Switch light or dark theme": "लाइट या डार्क थीम बदलें",
+  "Reload page": "पेज फिर से लोड करें",
   "Sell an item": "सामान बेचें",
   "Wish list": "विश लिस्ट",
   "Your orders": "आपके ऑर्डर",

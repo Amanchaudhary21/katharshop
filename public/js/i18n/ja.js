@@ -13,6 +13,7 @@ I18N.ja = {
   "Search": "検索",
   "Suggestions": "候補",
   "Switch light or dark theme": "ライト/ダークテーマを切り替え",
+  "Reload page": "ページを再読み込み",
   "Sell an item": "商品を出品",
   "Wish list": "ほしい物リスト",
   "Your orders": "注文履歴",
