@@ -154,18 +154,18 @@ html { scroll-padding-top: calc(var(--head-h) + 8px); }
 /* Always-visible scrollbars: the page (right side), the department row and product rows (bottom).
    Chrome and Edge use the ::-webkit-scrollbar styles, which also stop Windows 11 from hiding them.
    Don't add scrollbar-width or scrollbar-color to these boxes: Chrome would then ignore the styles below. */
-html::-webkit-scrollbar { width: 12px; }
-html::-webkit-scrollbar-track { background: var(--surface-2); }
-html::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; border: 3px solid var(--surface-2); }
-html::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+html::-webkit-scrollbar { width: 14px; }
+html::-webkit-scrollbar-track { background: var(--surface-2); border-left: 1px solid var(--line); }
+html::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; border: 3px solid var(--surface-2); min-height: 48px; }
+html::-webkit-scrollbar-thumb:hover, html::-webkit-scrollbar-thumb:active { background: var(--accent-hover); }
 .catnav ul::-webkit-scrollbar, .rail::-webkit-scrollbar, .dept-grid::-webkit-scrollbar { height: 6px; }
 .catnav ul::-webkit-scrollbar-track, .rail::-webkit-scrollbar-track, .dept-grid::-webkit-scrollbar-track { background: var(--surface-2); border-radius: 999px; }
-.catnav ul::-webkit-scrollbar-thumb, .rail::-webkit-scrollbar-thumb, .dept-grid::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; }
-.catnav ul::-webkit-scrollbar-thumb:hover, .rail::-webkit-scrollbar-thumb:hover, .dept-grid::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+.catnav ul::-webkit-scrollbar-thumb, .rail::-webkit-scrollbar-thumb, .dept-grid::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.catnav ul::-webkit-scrollbar-thumb:hover, .rail::-webkit-scrollbar-thumb:hover, .dept-grid::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
 /* Firefox has no ::-webkit-scrollbar */
 @supports not selector(::-webkit-scrollbar) {
-  html { scrollbar-color: var(--muted) var(--surface-2); }
-  .catnav ul, .rail, .dept-grid { scrollbar-width: thin; scrollbar-color: var(--muted) var(--surface-2); }
+  html { scrollbar-color: var(--accent) var(--surface-2); }
+  .catnav ul, .rail, .dept-grid { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface-2); }
 }
 .catnav a { display: inline-block; white-space: nowrap; padding: 6px 10px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .9rem; color: var(--ink); }
 .catnav a:hover { background: var(--surface-2); }
