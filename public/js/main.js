@@ -1,7 +1,7 @@
 /* ==================================================================
    main.js - Starts the store: menus, search box, dark-mode button and click handling.
    This file must load last.
-   (file 12 of 12; the load order is at the bottom of index.html)
+   (file 16 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Start-up: menus, search, theme, page-wide events ---------- */
@@ -11,8 +11,12 @@ const hl = (text, toks) => (toks.length
   : esc(text));
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* page text from index.html in the chosen language, and the language menu in the header */
+translateStatic();
+$(".masthead .actions").insertAdjacentHTML("afterbegin", langPicker("langSel"));
+
 /* menus */
-$("#catNav").innerHTML = `<li><a class="deal" href="#/deals" data-cat="deals">Today's deals</a></li><li><a href="#/s" data-cat="all">All products</a></li>` +
+$("#catNav").innerHTML = `<li><a class="deal" href="#/deals" data-cat="deals">${t("Today's deals")}</a></li><li><a href="#/s" data-cat="all">${t("All products")}</a></li>` +
   CATS.map(c => `<li><a href="#/c/${c.id}" data-cat="${c.id}">${esc(c.name)}</a></li>`).join("");
 $("#searchCat").insertAdjacentHTML("beforeend", CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(""));
 
@@ -50,8 +54,8 @@ function openSuggest() {
   const icon = `<span class="thumb" aria-hidden="true" style="display:grid;place-items:center;background:var(--surface-2)"><svg style="width:20px;height:20px;fill:none"><use href="#i-search"/></svg></span>`;
   sug.items = [
     ...prods.map(p => ({ href: `#/p/${p.id}`, html: `<span class="thumb" aria-hidden="true">${art(p, 0)}</span><span>${hl(p.title, toks)}</span><small>${money(p.price)}</small>` })),
-    ...cats.map(c => ({ href: `#/c/${c.id}`, html: `${icon}<span>${hl(c.name, toks)}</span><small>Department</small>` })),
-    { href: `#/s/${encodeURIComponent(q)}${cat ? "?cat=" + cat : ""}`, html: `${icon}<span>Search all for <b>"${esc(q)}"</b></span>` }
+    ...cats.map(c => ({ href: `#/c/${c.id}`, html: `${icon}<span>${hl(c.name, toks)}</span><small>${t("Department")}</small>` })),
+    { href: `#/s/${encodeURIComponent(q)}${cat ? "?cat=" + cat : ""}`, html: `${icon}<span>${t("Search all for {q}", { q: `<b>"${esc(q)}"</b>` })}</span>` }
   ];
   box.innerHTML = sug.items.map((it, i) => `<li role="option" id="sg-${i}" aria-selected="false" data-href="${esc(it.href)}">${it.html}</li>`).join("");
   box.hidden = false; sug.active = -1;
@@ -84,20 +88,20 @@ function syncSearch() {
 /* wish list and quick add (used by product cards and product pages) */
 ACT.wish = el => {
   const id = Number(el.dataset.id), p = PM.get(id), on = toggleWish(id);
-  if (route.name === "wishlist") { rerender(); focusFirst("#wishTitle", "#main"); toast("Removed from your wish list"); return; }
+  if (route.name === "wishlist") { rerender(); focusFirst("#wishTitle", "#main"); toast(t("Removed from your wish list")); return; }
   $$(`[data-act="wish"][data-id="${id}"]`).forEach(b => {
     b.setAttribute("aria-pressed", String(on));
-    if (b.classList.contains("heart")) b.setAttribute("aria-label", `${on ? "Remove from" : "Add to"} wish list: ${p.title}`);
-    else b.textContent = on ? "Remove from wish list" : "Add to wish list";
+    if (b.classList.contains("heart")) b.setAttribute("aria-label", `${on ? t("Remove from wish list") : t("Add to wish list")}: ${p.title}`);
+    else b.textContent = on ? t("Remove from wish list") : t("Add to wish list");
   });
-  toast(on ? "Saved to your wish list" : "Removed from your wish list", on ? { href: "#/wishlist", label: "View" } : null);
+  toast(on ? t("Saved to your wish list") : t("Removed from your wish list"), on ? { href: "#/wishlist", label: t("View") } : null);
 };
 ACT.add = el => {
   const id = Number(el.dataset.id), p = PM.get(id), line = state.cart.find(l => l.id === id && l.v === 0), before = line ? line.q : 0;
-  if (!cartAdd(id, 0, 1)) { toast("Sorry, that item is unavailable"); return; }
+  if (!cartAdd(id, 0, 1)) { toast(t("Sorry, that item is unavailable")); return; }
   const after = state.cart.find(l => l.id === id && l.v === 0).q;
   if (after !== before) flyToCart(el);
-  toast(after === before ? `You already have the most you can order (${maxQty(p)})` : "Added to your cart", { href: "#/cart", label: "View cart" });
+  toast(after === before ? t("You already have the most you can order ({n})", { n: num(maxQty(p)) }) : t("Added to your cart"), { href: "#/cart", label: t("View cart") });
 };
 
 /* page-wide events */
@@ -130,7 +134,7 @@ $("#resetBtn").addEventListener("click", () => {
   Object.assign(CO, { name: fullName(USER), email: USER.email || "", street: "", city: "", region: "", zip: "", country: "United States" });
   if (hostTheme) document.documentElement.setAttribute("data-theme", hostTheme); else document.documentElement.removeAttribute("data-theme");
   updateCounts(); go("/");
-  toast("Demo data reset");
+  toast(t("Demo data reset"));
 });
 
 /* signed-in shopper: account menu in the header, and checkout starts with their name and email */

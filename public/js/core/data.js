@@ -1,7 +1,7 @@
 /* ==================================================================
    data.js - The product list, categories, coupons and delivery prices.
    Edit this file to sell different things.
-   (file 2 of 12; the load order is at the bottom of index.html)
+   (file 6 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Store settings and sample catalog (edit freely) ---------- */
@@ -172,6 +172,19 @@ const API_URL = ["localhost", "127.0.0.1"].includes(location.hostname) ? "http:/
    and the owner's browser keeps its own list (bz:removed) until it is published. See js/pages/sell.js */
 const sameIds = (a, b) => a.length === b.length && a.every(id => b.includes(id));
 const BASE_TITLES = Object.fromEntries(P.filter(p => !p.mine).map(p => [p.id, p.title]));
+/* Store text in the shopper's language (js/i18n). Your own items stay as you typed them.
+   The English name joins the keywords, so English searches still work in every language. */
+if (LANG !== "en") {
+  P.filter(p => !p.mine).forEach(p => {
+    p.kw += " " + p.title.toLowerCase();
+    p.title = t(p.title);
+    p.bullets = p.bullets.map(b => t(b));
+    p.specs = p.specs.map(([k, v]) => [t(k), t(v)]);
+    p.colors.forEach(c => { c.name = t(c.name); });
+  });
+  CATS.forEach(c => { c.name = t(c.name); c.blurb = t(c.blurb); });
+  Object.values(COUPONS).forEach(c => { c.label = t(c.label); });
+}
 let REMOVED = [...PUBLISHED_REMOVED];
 try {
   const local = JSON.parse(localStorage.getItem(API_URL ? "bz:srvRemoved" : "bz:removed"));
@@ -185,7 +198,7 @@ try {
 for (let i = P.length - 1; i >= 0; i--) if (REMOVED.includes(P[i].id)) P.splice(i, 1);
 const PM = new Map(P.map(p => [p.id, p]));
 const HERO = [
-  { id: "audio", h: "Sound that goes where you go", t: "Headphones and speakers, with deals on the most loved models.", cta: "Shop audio", to: "#/c/electronics", art: [1, 0], bg: "var(--brand-2)", ink: "var(--on-brand)" },
-  { id: "pantry", h: "Fill the pantry, skip the delivery fee", t: "Free delivery on every order over $35. Stock up on coffee, tea, oil and rice.", cta: "Shop grocery", to: "#/c/grocery", art: [28, 0], bg: "var(--tag)", ink: "var(--on-tag)" },
-  { id: "move", h: "Move more this season", t: "Mats, weights, balls and bottles to get you started.", cta: "Shop sports", to: "#/c/sports", art: [21, 1], bg: "var(--accent)", ink: "var(--on-accent)" }
+  { id: "audio", h: t("Sound that goes where you go"), t: t("Headphones and speakers, with deals on the most loved models."), cta: t("Shop audio"), to: "#/c/electronics", art: [1, 0], bg: "var(--brand-2)", ink: "var(--on-brand)" },
+  { id: "pantry", h: t("Fill the pantry, skip the delivery fee"), t: t("Free delivery on every order over $35. Stock up on coffee, tea, oil and rice."), cta: t("Shop grocery"), to: "#/c/grocery", art: [28, 0], bg: "var(--tag)", ink: "var(--on-tag)" },
+  { id: "move", h: t("Move more this season"), t: t("Mats, weights, balls and bottles to get you started."), cta: t("Shop sports"), to: "#/c/sports", art: [21, 1], bg: "var(--accent)", ink: "var(--on-accent)" }
 ];

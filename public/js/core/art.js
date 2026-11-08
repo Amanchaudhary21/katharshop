@@ -1,7 +1,7 @@
 /* ==================================================================
    art.js - Shows the product pictures: a real photo when the product has one (see PHOTOS in data.js),
    otherwise a small SVG drawing made by code.
-   (file 4 of 12; the load order is at the bottom of index.html)
+   (file 8 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Product art: small flat illustrations drawn in code ---------- */

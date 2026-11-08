@@ -2,7 +2,7 @@
 
 A practice online store made with plain HTML, CSS and JavaScript (no frameworks).
 Search, filters, cart, coupons, checkout, orders, a wish list, selling your own items
-with a photo, and sign-in with email, phone number or Google.
+with a photo, and sign-in with Google. In four languages: नेपाली (default), English, हिन्दी and 日本語.
 
 > Demo only: no real payments, nothing is shipped, and accounts are saved only in your own browser.
 
@@ -69,10 +69,12 @@ or double-click `start.bat`. The store opens at <http://localhost:8080>. You nee
 │   │   └── style.css        colors (light and dark), buttons, cards, cart, sign-in page
 │   └── js/
 │       ├── core/            shared pieces, loaded first
+│       │   ├── i18n.js      languages: the language menu and t("English text")
 │       │   ├── data.js      products, categories, coupons, delivery prices
-│       │   ├── auth.js      sign-in screen: email, phone code, Google, social, password reset
+│       │   ├── auth.js      sign-in screen: Google only
 │       │   ├── art.js       draws the product pictures (or shows your photo)
 │       │   └── core.js      helpers, saved cart and wish list, price maths, page switcher
+│       ├── i18n/            one translation file per language: ne.js, hi.js, ja.js
 │       ├── pages/           one file per page
 │       │   ├── home.js      home page, product lists, search results, filters
 │       │   ├── product.js   single product page and reviews
@@ -106,14 +108,21 @@ Edit, save with Ctrl+S, then press F5 in the browser.
 If something looks broken after an edit, undo with Ctrl+Z and save again.
 A small typing mistake in a JS file can stop the whole page.
 
+## Languages
+
+Pick नेपाली, English, हिन्दी or 日本語 with the globe menu in the header or on the sign-in card.
+The choice is remembered in this browser. Nepali is the default.
+
+The text is written in English in the code, wrapped like `t("Add to cart")`. Each file in
+`public/js/i18n/` maps the English text to its language, so to change a translation, edit it there.
+When you add new text, add it to all three files too; anything missing simply shows in English.
+Text in `index.html` marked with `data-t` is translated the same way.
+Products you add with "Sell an item" keep the words you typed.
+
 ## Signing in
 
-Everyone must sign in before they can shop:
-
-- **Email and password**: click "Create account" the first time.
-- **Phone number**: type your number, then the 6-digit code. This demo can't send real
-  text messages, so the code is shown on the screen.
-- **Google**: needs a one-time setup (below).
+Everyone must sign in with **Google** before they can shop. It needs a one-time setup (below)
+and only works at http://localhost:8080 or the live site, not on a double-clicked `index.html`.
 
 Each account has its own cart, wish list and orders. Click the round letter button in the
 top-right corner of the store to sign out. "Reset demo data" in the footer clears only your data.

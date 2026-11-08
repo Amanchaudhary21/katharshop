@@ -1,17 +1,17 @@
 /* ==================================================================
    core.js - Helpers, the saved cart and wish list, price maths, and the page switcher (router).
-   (file 5 of 12; the load order is at the bottom of index.html)
+   (file 9 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Core: helpers, saved state, cart maths, router ---------- */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-const money = n => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+const money = n => fmtNum(n, { style: "currency", currency: "USD" });
 const round2 = n => Math.round(n * 100) / 100;
 const catName = id => (CATS.find(c => c.id === id) || {}).name || "";
 const disc = p => (p.was ? Math.round((1 - p.price / p.was) * 100) : 0);
-const when = d => new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(d);
+const when = d => fmtDate(d, { weekday: "short", month: "short", day: "numeric" });
 const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
 
 /* Saved in this browser only, under the signed-in account (bz:<user id>:cart and so on).
@@ -64,8 +64,8 @@ function totals() {
 }
 function updateCounts() {
   const n = state.cart.reduce((s, l) => s + l.q, 0);
-  $("#cartCount").textContent = n ? String(n) : "";
-  $("#wishCount").textContent = state.wish.length ? String(state.wish.length) : "";
+  $("#cartCount").textContent = n ? num(n) : "";
+  $("#wishCount").textContent = state.wish.length ? num(state.wish.length) : "";
 }
 function toggleWish(id) {
   const i = state.wish.indexOf(id);
@@ -80,21 +80,21 @@ function addRecent(id) {
 
 /* ---------- small building blocks ---------- */
 const STAR_ROW = `<svg viewBox="0 0 108 20" aria-hidden="true">${[0, 22, 44, 66, 88].map(x => `<use href="#i-star" x="${x}" width="20" height="20"/>`).join("")}</svg>`;
-const stars = r => `<span class="stars" role="img" aria-label="${r} out of 5 stars"><span class="base">${STAR_ROW}</span><span class="fill" style="width:${(r / 5 * 100).toFixed(1)}%">${STAR_ROW}</span></span>`;
+const stars = r => `<span class="stars" role="img" aria-label="${t("{n} out of 5 stars", { n: num(r) })}"><span class="base">${STAR_ROW}</span><span class="fill" style="width:${(r / 5 * 100).toFixed(1)}%">${STAR_ROW}</span></span>`;
 
 function card(p) {
   const wished = state.wish.includes(p.id), d = disc(p), out = p.stock < 1;
-  const badge = out ? "" : d >= 20 ? `<span class="badge sale">-${d}%</span>` : p.age <= 15 ? `<span class="badge">New</span>` : p.n >= 4000 ? `<span class="badge">Best seller</span>` : "";
+  const badge = out ? "" : d >= 20 ? `<span class="badge sale">-${d}%</span>` : p.age <= 15 ? `<span class="badge">${t("New")}</span>` : p.n >= 4000 ? `<span class="badge">${t("Best seller")}</span>` : "";
   return `<article class="card">
     ${badge}
-    <button class="heart" type="button" data-act="wish" data-id="${p.id}" aria-pressed="${wished}" aria-label="${wished ? "Remove from" : "Add to"} wish list: ${esc(p.title)}"><svg aria-hidden="true"><use href="#i-heart"/></svg></button>
+    <button class="heart" type="button" data-act="wish" data-id="${p.id}" aria-pressed="${wished}" aria-label="${wished ? t("Remove from wish list") : t("Add to wish list")}: ${esc(p.title)}"><svg aria-hidden="true"><use href="#i-heart"/></svg></button>
     ${art(p, 0)}
     <a class="title" href="#/p/${p.id}">${esc(p.title)}</a>
-    <div class="rate">${stars(p.rating)}<b>${p.rating.toFixed(1)}</b><span>(${p.n.toLocaleString()})</span></div>
+    <div class="rate">${stars(p.rating)}<b>${num(p.rating, 1)}</b><span>(${num(p.n)})</span></div>
     <div class="price-row"><span class="price">${money(p.price)}</span>${p.was ? `<span class="was">${money(p.was)}</span>` : ""}${d && (out || d < 20) ? `<span class="off">-${d}%</span>` : ""}</div>
-    ${out ? `<span class="stock-out">Currently unavailable</span>` : p.price >= FREE_SHIP_MIN ? `<span class="ship">Free delivery</span>` : `<span class="muted" style="font-size:.8rem">Free delivery over ${money(FREE_SHIP_MIN)}</span>`}
-    <button class="btn brand small" type="button" data-act="add" data-id="${p.id}" ${out ? "disabled" : ""}>${out ? "Unavailable" : "Add to cart"}</button>
-    ${IS_OWNER ? `<button class="btn danger small" type="button" data-act="unsell" data-id="${p.id}" aria-label="Delete ${esc(p.title)}">Delete item</button>` : ""}
+    ${out ? `<span class="stock-out">${t("Currently unavailable")}</span>` : p.price >= FREE_SHIP_MIN ? `<span class="ship">${t("Free delivery")}</span>` : `<span class="muted" style="font-size:.8rem">${t("Free delivery over {amount}", { amount: money(FREE_SHIP_MIN) })}</span>`}
+    <button class="btn brand small" type="button" data-act="add" data-id="${p.id}" ${out ? "disabled" : ""}>${out ? t("Unavailable") : t("Add to cart")}</button>
+    ${IS_OWNER ? `<button class="btn danger small" type="button" data-act="unsell" data-id="${p.id}" aria-label="${t("Delete {name}", { name: esc(p.title) })}">${t("Delete item")}</button>` : ""}
   </article>`;
 }
 const emptyState = (title, text, link, label) => `<div class="empty"><svg aria-hidden="true" style="fill:none"><use href="#i-bag"/></svg><h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><a class="btn primary" href="${link}">${esc(label)}</a></div>`;
@@ -121,8 +121,8 @@ async function api(path, opts = {}) {
 }
 const saveSrvRemoved = () => { try { localStorage.setItem("bz:srvRemoved", JSON.stringify(REMOVED)); } catch (e) { /* blocked */ } };
 function serverError(e) {
-  if (e.status === 401) { try { localStorage.removeItem("bz:ownerToken"); } catch (x) { /* blocked */ } return "The shop server needs your owner password again (Sell page)."; }
-  return e.status ? `The shop server could not do that (error ${e.status}).` : "Can't reach the shop server. Is it running? (backend folder: mvnw spring-boot:run)";
+  if (e.status === 401) { try { localStorage.removeItem("bz:ownerToken"); } catch (x) { /* blocked */ } return t("The shop server needs your owner password again (Sell page)."); }
+  return e.status ? t("The shop server could not do that (error {n}).", { n: e.status }) : t("Can't reach the shop server. Is it running? (backend folder: mvnw spring-boot:run)");
 }
 
 /* Added to cart: a copy of the product photo flies into the cart icon, then the icon bounces with a tick */

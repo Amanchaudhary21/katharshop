@@ -2,16 +2,16 @@
    sell.js - The "Sell an item" page: add your own product with a photo.
    Your products are saved in this browser (key bz:mine) and show up
    in the shop like every other product.
-   (file 10 of 12; the load order is at the bottom of index.html)
+   (file 14 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Sell an item ---------- */
 let sellPhoto = "";
 const SELL_RULES = {
-  title: v => v.length >= 3 || "Give your item a name (at least 3 letters).",
-  price: v => Number(v) > 0 || "Enter a price above 0.",
-  was: v => !v || Number(v) > Number($("#sl_price").value) || "The old price must be higher than the price, or leave it empty.",
-  stock: v => (Number.isInteger(Number(v)) && Number(v) >= 0) || "Enter a whole number, like 10."
+  title: v => v.length >= 3 || t("Give your item a name (at least 3 letters)."),
+  price: v => Number(v) > 0 || t("Enter a price above 0."),
+  was: v => !v || Number(v) > Number($("#sl_price").value) || t("The old price must be higher than the price, or leave it empty."),
+  stock: v => (Number.isInteger(Number(v)) && Number(v) >= 0) || t("Enter a whole number, like 10.")
 };
 
 /* Make the photo small (max 600 px) so many items fit in the browser's storage */
@@ -59,36 +59,36 @@ function sellField(id, label, attrs, hint) {
 }
 
 VIEWS.sell = (r = {}) => {
-  if (!IS_OWNER) return { html: `<h1 class="sr" id="sellTitle" tabindex="-1">Sell an item</h1>${emptyState("Only the store owner can add items", "You can still shop everything in the store.", "#/", "Start shopping")}` };
+  if (!IS_OWNER) return { html: `<h1 class="sr" id="sellTitle" tabindex="-1">${t("Sell an item")}</h1>${emptyState(t("Only the store owner can add items"), t("You can still shop everything in the store."), "#/", t("Start shopping"))}` };
   sellPhoto = "";
   const mine = P.filter(isMine);
   return {
-    html: `<div class="sec-head" style="margin-top:0"><h1 id="sellTitle" tabindex="-1">Sell an item</h1></div>
+    html: `<div class="sec-head" style="margin-top:0"><h1 id="sellTitle" tabindex="-1">${t("Sell an item")}</h1></div>
     <form id="sellForm" class="sell-layout" novalidate>
-      <section class="panel stack" aria-labelledby="h-photo"><h2 id="h-photo" style="${H2S}">1. Photo</h2>
+      <section class="panel stack" aria-labelledby="h-photo"><h2 id="h-photo" style="${H2S}">1. ${t("Photo")}</h2>
         <label class="photo-drop" id="photoDrop" for="sl_photo">
           <img id="photoPrev" alt="" hidden>
-          <span id="photoHint"><svg aria-hidden="true"><use href="#i-plus"/></svg><b>Choose a photo</b><span class="muted">JPG or PNG from your phone or computer</span></span>
+          <span id="photoHint"><svg aria-hidden="true"><use href="#i-plus"/></svg><b>${t("Choose a photo")}</b><span class="muted">${t("JPG or PNG from your phone or computer")}</span></span>
         </label>
         <input id="sl_photo" type="file" accept="image/*" class="sr" data-chg="photo" aria-describedby="slerr_photo">
         <div class="err" id="slerr_photo" style="color:var(--bad)"></div>
       </section>
-      <section class="panel stack" aria-labelledby="h-info"><h2 id="h-info" style="${H2S}">2. Details</h2>
+      <section class="panel stack" aria-labelledby="h-info"><h2 id="h-info" style="${H2S}">2. ${t("Details")}</h2>
         <div class="form-grid">
-          <div class="wide">${sellField("title", "Item name", `type="text" maxlength="90" value="${esc(r.title || "")}"`)}</div>
-          ${sellField("price", "Price ($)", 'type="number" min="0.01" step="0.01" inputmode="decimal"')}
-          ${sellField("was", "Old price ($)", 'type="number" min="0" step="0.01" inputmode="decimal"', "Optional. Shows a sale badge.")}
-          <div class="field"><label for="sl_cat">Department</label><select id="sl_cat" name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === r.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
-          ${sellField("stock", "How many in stock", 'type="number" min="0" step="1" value="10" inputmode="numeric"')}
-          <div class="field wide"><label for="sl_about">About this item</label><textarea id="sl_about" name="about" maxlength="600" placeholder="One point per line"></textarea></div>
+          <div class="wide">${sellField("title", t("Item name"), `type="text" maxlength="90" value="${esc(r.title || "")}"`)}</div>
+          ${sellField("price", t("Price ($)"), 'type="number" min="0.01" step="0.01" inputmode="decimal"')}
+          ${sellField("was", t("Old price ($)"), 'type="number" min="0" step="0.01" inputmode="decimal"', t("Optional. Shows a sale badge."))}
+          <div class="field"><label for="sl_cat">${t("Department")}</label><select id="sl_cat" name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === r.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+          ${sellField("stock", t("How many in stock"), 'type="number" min="0" step="1" value="10" inputmode="numeric"')}
+          <div class="field wide"><label for="sl_about">${t("About this item")}</label><textarea id="sl_about" name="about" maxlength="600" placeholder="${t("One point per line")}"></textarea></div>
         </div>
-        <button class="btn brand block" type="submit">Save item to the shop</button>
-        <p class="muted" style="font-size:.82rem">Saved only in this browser. "Reset demo data" in the footer removes it.</p>
+        <button class="btn brand block" type="submit">${t("Save item to the shop")}</button>
+        <p class="muted" style="font-size:.82rem">${t("Saved only in this browser. \"Reset demo data\" in the footer removes it.")}</p>
       </section>
     </form>
-    <section class="sec" aria-labelledby="h-mine"><div class="sec-head"><h2 id="h-mine">Your items (${mine.length})</h2></div>
+    <section class="sec" aria-labelledby="h-mine"><div class="sec-head"><h2 id="h-mine">${t("Your items ({n})", { n: num(mine.length) })}</h2></div>
       ${mine.length ? `<div class="grid">${mine.map(card).join("")}</div>`
-        : `<p class="muted">You have not added any items yet.</p>`}
+        : `<p class="muted">${t("You have not added any items yet.")}</p>`}
     </section>
     ${removedPanel()}`
   };
@@ -97,11 +97,11 @@ VIEWS.sell = (r = {}) => {
 CHG.photo = el => {
   const file = el.files && el.files[0], err = $("#slerr_photo");
   if (!file) return;
-  if (!file.type.startsWith("image/")) { err.textContent = "That file is not a picture. Choose a JPG or PNG."; return; }
-  err.textContent = "Loading photo...";
+  if (!file.type.startsWith("image/")) { err.textContent = t("That file is not a picture. Choose a JPG or PNG."); return; }
+  err.textContent = t("Loading photo...");
   shrinkPhoto(file, url => {
     sellPhoto = url;
-    err.textContent = url ? "" : "Could not read that picture. Try another one.";
+    err.textContent = url ? "" : t("Could not read that picture. Try another one.");
     const prev = $("#photoPrev");
     if (!prev) return;
     prev.src = url; prev.hidden = !url;
@@ -119,12 +119,12 @@ FORM.sellForm = () => {
     errEl.textContent = msg || "";
     if (!ok && !first) first = el;
   };
-  bad($("#sl_photo"), $("#slerr_photo"), sellPhoto ? "" : "Add a photo of your item.");
+  bad($("#sl_photo"), $("#slerr_photo"), sellPhoto ? "" : t("Add a photo of your item."));
   Object.keys(SELL_RULES).forEach(k => {
     const el = $("#sl_" + k), r = SELL_RULES[k](el.value.trim());
     bad(el, $("#slerr_" + k), r === true ? "" : r);
   });
-  if (first) { first.focus(); toast("Please fix the highlighted fields."); return; }
+  if (first) { first.focus(); toast(t("Please fix the highlighted fields.")); return; }
 
   const val = k => $("#sl_" + k).value.trim();
   const id = Math.max(1000, ...P.map(p => p.id)) + 1;
@@ -135,10 +135,10 @@ FORM.sellForm = () => {
   P.push(p); PM.set(id, p);
   if (!saveMine()) {
     unlist(id);
-    toast("Not saved: your browser storage is full or blocked. Try a smaller photo or remove some items.");
+    toast(t("Not saved: your browser storage is full or blocked. Try a smaller photo or remove some items."));
     return;
   }
-  toast(`"${p.title}" is now in the shop`, { href: `#/p/${id}`, label: "View item" });
+  toast(t("{name} is now in the shop", { name: `"${p.title}"` }), { href: `#/p/${id}`, label: t("View item") });
   rerender("#sellTitle");
 };
 
@@ -147,8 +147,8 @@ const viaServer = p => API_URL && !p.mine;
 ACT.unsell = async el => {
   const id = Number(el.dataset.id), p = PM.get(id);
   if (!p || !IS_OWNER) return;
-  if (viaServer(p) && !ownerToken()) { go("/sell"); toast("Connect to the shop server first (owner password below), then delete the item again."); return; }
-  if (!confirm(`Delete "${p.title}" from the shop${viaServer(p) ? " for every shopper" : ""}?\n\nIt will also be removed from carts and wish lists.`)) return;
+  if (viaServer(p) && !ownerToken()) { go("/sell"); toast(t("Connect to the shop server first (owner password below), then delete the item again.")); return; }
+  if (!confirm(t(viaServer(p) ? "Delete {name} from the shop for every shopper?" : "Delete {name} from the shop?", { name: `"${p.title}"` }) + "\n\n" + t("It will also be removed from carts and wish lists."))) return;
   if (viaServer(p)) {
     try { REMOVED = await api(`/products/${id}`, { method: "DELETE" }); } catch (e) { toast(serverError(e)); if (e.status === 401) rerender(); return; }
     saveSrvRemoved();
@@ -156,10 +156,10 @@ ACT.unsell = async el => {
   unlist(id);
   if (p.mine) saveMine(); else if (!API_URL) { REMOVED.push(id); saveRemoved(); }
   if (route.name === "product") go(p.mine ? "/sell" : "/"); else rerender();
-  toast(`"${p.title}" was deleted${viaServer(p) ? " for everyone" : ""}`);
+  toast(t(viaServer(p) ? "{name} was deleted for everyone" : "{name} was deleted", { name: `"${p.title}"` }));
 };
 ACT.restoreall = async () => {
-  if (!IS_OWNER || !confirm(`Bring back ${REMOVED.length} deleted store product${REMOVED.length === 1 ? "" : "s"}${API_URL ? " for every shopper" : ""}?`)) return;
+  if (!IS_OWNER || !confirm(t(API_URL ? "Bring back {n} deleted store products for every shopper?" : "Bring back {n} deleted store products?", { n: num(REMOVED.length) }))) return;
   if (API_URL) {
     try { REMOVED = await api("/products/restore", { method: "POST" }); } catch (e) { toast(serverError(e)); if (e.status === 401) rerender(); return; }
     saveSrvRemoved();
@@ -172,28 +172,28 @@ function serverPanel() {
   const n = REMOVED.length, on = !!ownerToken();
   return `<section class="sec panel stack" aria-labelledby="h-removed">
     <div class="row" style="justify-content:space-between">
-      <h2 id="h-removed" style="${H2S}">Deleted store products (${n})</h2>
-      ${n && on ? `<button class="btn small" type="button" data-act="restoreall">Restore all</button>` : ""}
+      <h2 id="h-removed" style="${H2S}">${t("Deleted store products ({n})", { n: num(n) })}</h2>
+      ${n && on ? `<button class="btn small" type="button" data-act="restoreall">${t("Restore all")}</button>` : ""}
     </div>
-    <p class="muted" style="font-size:.88rem">Deleting a store product with its "Delete item" button hides it for every shopper. The list is kept in the shop server's MySQL database.</p>
-    ${on ? `<div class="row"><span><b>Connected</b> to the shop server as the owner.</span><button class="btn small" type="button" data-act="srvout">Disconnect</button></div>`
+    <p class="muted" style="font-size:.88rem">${t("Deleting a store product with its \"Delete item\" button hides it for every shopper. The list is kept in the shop server's MySQL database.")}</p>
+    ${on ? `<div class="row"><span>${t("<b>Connected</b> to the shop server as the owner.")}</span><button class="btn small" type="button" data-act="srvout">${t("Disconnect")}</button></div>`
       : `<form id="ownerForm" class="stack" novalidate>
-        <div class="field"><label for="ow_pass">Owner password for the shop server</label><input id="ow_pass" type="password" autocomplete="current-password" aria-describedby="ow_err">
-          <span class="muted" style="font-size:.82rem">Set in backend/local.properties (app.owner-password), or printed when the server starts.</span>
+        <div class="field"><label for="ow_pass">${t("Owner password for the shop server")}</label><input id="ow_pass" type="password" autocomplete="current-password" aria-describedby="ow_err">
+          <span class="muted" style="font-size:.82rem">${t("Set in backend/local.properties (app.owner-password), or printed when the server starts.")}</span>
           <div class="err" id="ow_err" role="alert"></div></div>
-        <div class="row"><button class="btn brand" type="submit">Connect</button></div>
+        <div class="row"><button class="btn brand" type="submit">${t("Connect")}</button></div>
       </form>`}
   </section>`;
 }
 FORM.ownerForm = async () => {
   const pass = $("#ow_pass"), say = msg => { $("#ow_err").textContent = msg; pass.focus(); };
-  if (!pass.value) return say("Enter the owner password.");
+  if (!pass.value) return say(t("Enter the owner password."));
   try {
     const r = await api("/owner/login", { method: "POST", body: JSON.stringify({ email: USER.email, password: pass.value }) });
     localStorage.setItem("bz:ownerToken", r.token);
-  } catch (e) { return say(e.status === 401 ? "Wrong password, or this account is not the owner on the server." : serverError(e)); }
+  } catch (e) { return say(e.status === 401 ? t("Wrong password, or this account is not the owner on the server.") : serverError(e)); }
   rerender("#h-removed");
-  toast("Connected to the shop server");
+  toast(t("Connected to the shop server"));
 };
 ACT.srvout = () => { try { localStorage.removeItem("bz:ownerToken"); } catch (e) { /* blocked */ } rerender("#ow_pass"); };
 
@@ -203,22 +203,22 @@ ACT.srvout = () => { try { localStorage.removeItem("bz:ownerToken"); } catch (e)
 const unpublished = () => !sameIds(REMOVED, PUBLISHED_REMOVED);
 function removedPanel() {
   if (API_URL) return serverPanel();
-  const n = REMOVED.length, pub = PUBLISHED_REMOVED.length, s = k => (k === 1 ? "" : "s");
+  const n = REMOVED.length, pub = PUBLISHED_REMOVED.length;
   return `<section class="sec panel stack" aria-labelledby="h-removed">
     <div class="row" style="justify-content:space-between">
-      <h2 id="h-removed" style="${H2S}">Deleted store products (${n})</h2>
-      ${n ? `<button class="btn small" type="button" data-act="restoreall">Restore all</button>` : ""}
+      <h2 id="h-removed" style="${H2S}">${t("Deleted store products ({n})", { n: num(n) })}</h2>
+      ${n ? `<button class="btn small" type="button" data-act="restoreall">${t("Restore all")}</button>` : ""}
     </div>
-    <p class="muted" style="font-size:.88rem">As the owner you can delete any product with its "Delete item" button. Deleting hides it in this browser straight away.</p>
-    <p><b>For everyone:</b> ${pub} product${s(pub)} deleted.${unpublished() ? ` <span class="pub-flag">You have changes only this browser sees</span>` : ` <span class="muted">Up to date.</span>`}</p>
+    <p class="muted" style="font-size:.88rem">${t("As the owner you can delete any product with its \"Delete item\" button. Deleting hides it in this browser straight away.")}</p>
+    <p><b>${t("For everyone:")}</b> ${t("{n} products deleted.", { n: num(pub) })}${unpublished() ? ` <span class="pub-flag">${t("You have changes only this browser sees")}</span>` : ` <span class="muted">${t("Up to date.")}</span>`}</p>
     ${unpublished() ? `<div class="row">
-      <button class="btn brand" type="button" data-act="publish">Publish deletions for everyone</button>
-      <button class="btn" type="button" data-act="unpublished">Undo unpublished changes</button>
+      <button class="btn brand" type="button" data-act="publish">${t("Publish deletions for everyone")}</button>
+      <button class="btn" type="button" data-act="unpublished">${t("Undo unpublished changes")}</button>
     </div>
     <ol class="muted pub-steps">
-      <li>Click <b>Publish deletions for everyone</b>. It downloads <span class="mono">removed.js</span>.</li>
-      <li>Put it in the project at <span class="mono">public/js/core/removed.js</span> (replace the old one).</li>
-      <li>Commit and push to GitHub. Every visitor sees the change once GitHub Pages updates (usually a few minutes).</li>
+      <li>${t("Click {button}. It downloads {file}.", { button: `<b>${t("Publish deletions for everyone")}</b>`, file: `<span class="mono">removed.js</span>` })}</li>
+      <li>${t("Put it in the project at {path} (replace the old one).", { path: `<span class="mono">public/js/core/removed.js</span>` })}</li>
+      <li>${t("Commit and push to GitHub. Every visitor sees the change once GitHub Pages updates (usually a few minutes).")}</li>
     </ol>` : ""}
   </section>`;
 }
@@ -230,7 +230,7 @@ ACT.publish = () => {
    removed.js - Store products the owner deleted for EVERY visitor.
    Made by "Publish deletions for everyone" on the Sell page (owner only).
    To update it: replace this file with the downloaded one, then push to GitHub.
-   (file 1 of 12; the load order is at the bottom of index.html)
+   (file 1 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 ${ids.length ? `/* Deleted on ${new Date().toISOString().slice(0, 10)}:\n${names}\n*/\n` : ""}const PUBLISHED_REMOVED = [${ids.join(", ")}];
 `;
@@ -239,10 +239,10 @@ ${ids.length ? `/* Deleted on ${new Date().toISOString().slice(0, 10)}:\n${names
   a.download = "removed.js";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast("removed.js downloaded. Put it in public/js/core/ and push to GitHub.");
+  toast(t("removed.js downloaded. Put it in public/js/core/ and push to GitHub."));
 };
 ACT.unpublished = () => {
-  if (!IS_OWNER || !confirm("Undo the changes you have not published? This browser will show the published list again.")) return;
+  if (!IS_OWNER || !confirm(t("Undo the changes you have not published? This browser will show the published list again."))) return;
   try { localStorage.removeItem("bz:removed"); } catch (e) { /* blocked */ }
   location.reload();
 };
