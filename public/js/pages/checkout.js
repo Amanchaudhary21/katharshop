@@ -1,6 +1,6 @@
 /* ==================================================================
    checkout.js - Checkout form, order confirmation and the Orders page.
-   (file 13 of 16; the load order is at the bottom of index.html)
+   (file 12 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Checkout, confirmation, orders ---------- */

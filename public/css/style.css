@@ -507,9 +507,9 @@ html.locked body > :not(#gate):not(svg) { display: none !important; }
 .g-err { color: var(--bad); font-size: .9rem; }
 .g-err:empty { display: none; }
 .g-hint, .g-foot { color: var(--muted); font-size: .82rem; }
-.icon-btn.avatar { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: .85rem; overflow: hidden; }
+.icon-btn.avatar { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: .85rem; overflow: visible; /* not hidden: the hover name sits outside the circle */ }
 .icon-btn.avatar { width: 32px; height: 32px; margin-left: 6px; font-size: 1rem; }
-.icon-btn.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.icon-btn.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 @media (max-width: 860px) {
   .g-wrap { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
   .g-hero { padding: 34px 20px 22px; gap: 10px; }
@@ -631,3 +631,19 @@ html.locked body > :not(#gate):not(svg) { display: none !important; }
 .hs-small .hs-prev { left: 0; }
 .hs-small .hs-next { right: 0; }
 @media (max-width: 560px) { .hs-prev { left: -6px; } .hs-next { right: -6px; } .hs-btn { width: 36px; height: 36px; } }
+
+/* Names under the header buttons (data-tip in index.html): shown on mouse hover or keyboard focus.
+   ::before, because the cart button already uses ::after for its "added" tick. */
+[data-tip] { position: relative; }
+[data-tip]::before {
+  content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; z-index: 60;
+  transform: translate(-50%, -3px); opacity: 0; pointer-events: none; transition: opacity .12s ease, transform .12s ease;
+  white-space: nowrap; padding: 5px 9px; border-radius: 6px; font: 600 12px/1.2 var(--font-body); letter-spacing: 0;
+  background: var(--ink); color: var(--bg); box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+[data-tip]:hover::before, [data-tip]:focus-visible::before, .lang-pick:has(select:focus-visible)::before { opacity: 1; transform: translate(-50%, 0); }
+/* the last button sits at the screen edge: its name lines up with its right side instead */
+.actions > [data-tip]:last-child::before { left: auto; right: 0; transform: translateY(-3px); }
+.actions > [data-tip]:last-child:hover::before, .actions > [data-tip]:last-child:focus-visible::before { transform: none; }
+@media (hover: none) { [data-tip]::before { display: none; } } /* phones: no mouse to hover with */
+@media (prefers-reduced-motion: reduce) { [data-tip]::before { transition: none; } }

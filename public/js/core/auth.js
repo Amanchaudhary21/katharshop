@@ -3,7 +3,7 @@
    use the store. Each account gets its own cart, wish list and orders.
    DEMO ONLY: accounts are kept in this browser (key bz:users). This is
    not real security.
-   (file 7 of 16; the load order is at the bottom of index.html)
+   (file 6 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Google sign-in setup ----------

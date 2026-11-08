@@ -1,7 +1,7 @@
 /* ==================================================================
    main.js - Starts the store: menus, search box, dark-mode button and click handling.
    This file must load last.
-   (file 16 of 16; the load order is at the bottom of index.html)
+   (file 15 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Start-up: menus, search, theme, page-wide events ---------- */
@@ -172,20 +172,14 @@ if (USER) {
 }
 
 /* Products the owner adds or deletes on the shop server (MySQL) show up here too: checked on load,
-   when the tab is shown again, and every 30 seconds. Restored store products need a reload. */
+   when the tab is shown again, and every 30 seconds while the store is on screen. */
 async function syncShop() {
   let s;
-  try { s = await api("/products/state"); } catch (e) { return; /* server off: keep the last lists */ }
-  const ids = (s.deleted || []).filter(Number.isFinite), added = (s.added || []).filter(Number.isFinite);
+  try { s = await api("/products/state"); } catch (e) { return; /* server off: keep the last list */ }
+  const added = (s.added || []).filter(Number.isFinite);
   let changed = false;
-  if (!sameIds(ids, REMOVED)) {
-    const back = REMOVED.some(id => !ids.includes(id));
-    REMOVED = ids; saveSrvRemoved();
-    if (back) { location.reload(); return; }
-    ids.filter(id => PM.has(id)).forEach(id => { unlist(id); changed = true; });
-  }
-  /* the owner's own products: deleted ones go, new ones are fetched with their photos */
-  P.filter(p => p.mine && !added.includes(p.id)).forEach(p => { unlist(p.id); changed = true; });
+  /* deleted products go, new ones are fetched with their photos */
+  P.filter(p => !added.includes(p.id)).forEach(p => { unlist(p.id); changed = true; });
   if (added.some(id => !PM.has(id))) {
     try {
       (await api("/products/added")).forEach(j => {

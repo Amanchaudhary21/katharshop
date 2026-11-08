@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Mukta:wght@400;500;600;700;800&display=swap">
 
   <!-- Our own CSS file: all the colors and the layout live here -->
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -43,7 +43,7 @@
 <a class="skip" href="#main" data-t>Skip to content</a>
 <!-- the whole top area (demo note, masthead, awning, departments) stays in place while the page scrolls -->
 <div class="topnav" id="topnav">
-<div class="demo-bar" role="note" data-t><strong>Demo store.</strong> Sample products and sample ratings. No real orders, accounts or payments.</div>
+<div class="demo-bar" role="note" data-t><strong>Demo store.</strong> No real orders, accounts or payments.</div>
 <header class="masthead">
   <div class="wrap">
     <a class="brand-link" href="#/" aria-label="ShopNest home" data-t-attr="aria-label">
@@ -58,13 +58,14 @@
       <button class="go" type="submit" aria-label="Search" data-t-attr="aria-label"><svg aria-hidden="true"><use href="#i-search"/></svg></button>
       <ul class="suggest" id="suggest" role="listbox" aria-label="Suggestions" data-t-attr="aria-label" hidden></ul>
     </form>
+    <!-- data-tip: the name that shows under a button when the mouse is over it (or it has keyboard focus) -->
     <div class="actions">
-      <button class="icon-btn" id="reloadBtn" type="button" aria-label="Reload page" title="Reload page" data-t-attr="aria-label title"><svg aria-hidden="true"><use href="#i-reload"/></svg></button>
-      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme" data-t-attr="aria-label"><svg aria-hidden="true"><use href="#i-contrast"/></svg></button>
-      <a class="icon-btn" href="#/sell" aria-label="Sell an item" title="Sell an item" data-t-attr="aria-label title"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>
-      <a class="icon-btn" href="#/wishlist" aria-label="Wish list" data-t-attr="aria-label"><svg aria-hidden="true"><use href="#i-heart"/></svg><span class="count" id="wishCount"></span></a>
-      <a class="icon-btn" href="#/orders" aria-label="Your orders" data-t-attr="aria-label"><svg aria-hidden="true"><use href="#i-box"/></svg></a>
-      <a class="icon-btn" href="#/cart" aria-label="Cart" data-t-attr="aria-label"><svg aria-hidden="true"><use href="#i-cart"/></svg><span class="count" id="cartCount"></span></a>
+      <button class="icon-btn" id="reloadBtn" type="button" aria-label="Reload page" data-tip="Reload page" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-reload"/></svg></button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme" data-tip="Switch light or dark theme" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-contrast"/></svg></button>
+      <a class="icon-btn" href="#/sell" aria-label="Sell an item" data-tip="Sell an item" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>
+      <a class="icon-btn" href="#/wishlist" aria-label="Wish list" data-tip="Wish list" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-heart"/></svg><span class="count" id="wishCount"></span></a>
+      <a class="icon-btn" href="#/orders" aria-label="Your orders" data-tip="Your orders" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-box"/></svg></a>
+      <a class="icon-btn" href="#/cart" aria-label="Cart" data-tip="Cart" data-t-attr="aria-label data-tip"><svg aria-hidden="true"><use href="#i-cart"/></svg><span class="count" id="cartCount"></span></a>
     </div>
   </div>
 </header>
@@ -79,7 +80,7 @@
     <div class="cols">
       <div>
         <h3 data-t>About this demo</h3>
-        <p data-t>ShopNest is a practice marketplace that shows how an online store works, from search to checkout. The products, prices and ratings are samples.</p>
+        <p data-t>ShopNest is a practice marketplace that shows how an online store works, from search to checkout.</p>
       </div>
       <div>
         <h3 data-t>What you can try</h3>
@@ -110,22 +111,21 @@
 <!-- ===================== JavaScript files =====================
      Keep this order. Each file uses things made by the files above it. -->
 <!-- ?v= makes browsers fetch fresh copies; raise the number when you change the CSS or JS -->
-<script src="js/core/removed.js?v=2"></script>
-<script src="js/core/i18n.js?v=1"></script>
-<script src="js/i18n/ne.js?v=1"></script>
-<script src="js/i18n/hi.js?v=1"></script>
-<script src="js/i18n/ja.js?v=1"></script>
-<script src="js/core/data.js?v=4"></script>
+<script src="js/core/i18n.js?v=3"></script>
+<script src="js/i18n/ne.js?v=3"></script>
+<script src="js/i18n/hi.js?v=3"></script>
+<script src="js/i18n/ja.js?v=3"></script>
+<script src="js/core/data.js?v=6"></script>
 <script src="js/core/auth.js?v=8"></script>
 <script src="js/core/art.js?v=2"></script>
-<script src="js/core/core.js?v=4"></script>
-<script src="js/pages/home.js?v=3"></script>
+<script src="js/core/core.js?v=6"></script>
+<script src="js/pages/home.js?v=5"></script>
 <script src="js/pages/product.js?v=3"></script>
 <script src="js/pages/cart.js?v=3"></script>
 <script src="js/pages/checkout.js?v=7"></script>
-<script src="js/pages/sell.js?v=4"></script>
-<script src="js/pages/account.js?v=4"></script>
-<script src="js/main.js?v=4"></script>
+<script src="js/pages/sell.js?v=6"></script>
+<script src="js/pages/account.js?v=6"></script>
+<script src="js/main.js?v=6"></script>
 <!-- Service worker: makes the store installable as an app and lets it open offline (see sw.js) -->
 <script>
   if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});

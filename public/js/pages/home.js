@@ -1,6 +1,6 @@
 /* ==================================================================
    home.js - Home page, product lists, search results and filters.
-   (file 10 of 16; the load order is at the bottom of index.html)
+   (file 9 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Home ---------- */
@@ -13,14 +13,23 @@ ACT.slidepause = el => {
   el.setAttribute("aria-label", heroHold ? t("Play slideshow") : t("Pause slideshow"));
 };
 
-function heroHtml() {
+/* Banners (HERO in data.js) whose department has products; the picture is that department's newest product */
+const heroSlides = () => HERO.map(s => ({ ...s, pic: P.filter(p => p.cat === s.cat).sort((a, b) => a.age - b.age || b.id - a.id)[0] })).filter(s => s.pic);
+function heroHtml(slides) {
+  if (!slides.length) return "";
   return `<section class="hero" aria-roledescription="carousel" aria-label="${t("Featured offers")}">
-    ${HERO.map((s, i) => `<div class="slide${i === 0 ? " on" : ""}" style="--s-bg:${s.bg};--s-ink:${s.ink}" role="group" aria-roledescription="slide" aria-label="${t("{n} of {total}", { n: num(i + 1), total: num(HERO.length) })}">
+    ${slides.map((s, i) => `<div class="slide${i === 0 ? " on" : ""}" style="--s-bg:${s.bg};--s-ink:${s.ink}" role="group" aria-roledescription="slide" aria-label="${t("{n} of {total}", { n: num(i + 1), total: num(slides.length) })}">
       <div><h2>${esc(s.h)}</h2><p>${esc(s.t)}</p><a class="btn" href="${s.to}">${esc(s.cta)}</a></div>
-      ${PM.has(s.art[0]) ? art(PM.get(s.art[0]), s.art[1]) : ""}
+      ${art(s.pic, 0)}
     </div>`).join("")}
-    <div class="hero-ctl"><button type="button" class="hero-pause" data-act="slidepause" aria-pressed="false" aria-label="${t("Pause slideshow")}"></button>${HERO.map((s, i) => `<button type="button" data-act="slide" data-i="${i}" aria-label="${t("Show slide {n}", { n: num(i + 1) })}" aria-current="${i === 0}"></button>`).join("")}</div>
+    ${slides.length > 1 ? `<div class="hero-ctl"><button type="button" class="hero-pause" data-act="slidepause" aria-pressed="false" aria-label="${t("Pause slideshow")}"></button>${slides.map((s, i) => `<button type="button" data-act="slide" data-i="${i}" aria-label="${t("Show slide {n}", { n: num(i + 1) })}" aria-current="${i === 0}"></button>`).join("")}</div>` : ""}
   </section>`;
+}
+/* The shop has no products yet: the owner gets a button to add the first one */
+function noProductsYet() {
+  return `<div class="empty"><svg aria-hidden="true" style="fill:none"><use href="#i-bag"/></svg><h2>${t("No products yet")}</h2>
+    <p class="muted">${IS_OWNER ? t("Add your first product on the Sell page. It is saved in the database, and every shopper sees it.") : t("New products are coming soon. Please check back later.")}</p>
+    ${IS_OWNER ? `<a class="btn primary" href="#/sell"><svg aria-hidden="true" style="width:18px;height:18px;fill:none"><use href="#i-plus"/></svg>${t("Add a product")}</a>` : ""}</div>`;
 }
 function deptCard(c) {
   const items = P.filter(p => p.cat === c.id).slice(0, 4);
@@ -31,31 +40,39 @@ function deptCard(c) {
     <a href="#/c/${c.id}">${t("See all {name}", { name: esc(c.name) })}</a></section>`;
 }
 VIEWS.home = () => {
+  const title = `<h1 class="sr">${BRAND}: ${t("everyday essentials, delivered")}</h1>`;
+  if (!P.length) return { html: title + noProductsYet() };
+  const banners = heroSlides();
+  const depts = CATS.filter(c => P.some(p => p.cat === c.id));
   const deals = P.filter(p => p.was && p.stock > 0).sort((a, b) => disc(b) - disc(a)).slice(0, 10);
-  const best = [...P].sort((a, b) => b.n - a.n).slice(0, 8);
+  /* best sellers once products have ratings; until then the newest products */
+  const rated = P.some(p => p.n > 0);
+  const best = [...P].sort(rated ? (a, b) => b.n - a.n : (a, b) => a.age - b.age || b.id - a.id).slice(0, 8);
   const recent = state.recent.map(id => PM.get(id)).filter(Boolean).slice(0, 8);
   return {
-    html: `<h1 class="sr">${BRAND}: ${t("everyday essentials, delivered")}</h1>
-      ${heroHtml()}
-      <section class="sec" aria-labelledby="h-dept"><div class="sec-head"><h2 id="h-dept">${t("Shop by department")}</h2></div><div class="dept-grid">${CATS.map(deptCard).join("")}</div></section>
-      <section class="sec" aria-labelledby="h-deals"><div class="sec-head"><div class="row"><h2 id="h-deals">${t("Today's deals")}</h2><span class="timer" title="${t("Time left today")}" id="dealTimer">--:--:--</span></div><a href="#/deals">${t("See all deals")}</a></div><div class="rail">${deals.map(card).join("")}</div></section>
-      <section class="sec" aria-labelledby="h-best"><div class="sec-head"><h2 id="h-best">${t("Best sellers")}</h2></div><div class="grid">${best.map(card).join("")}</div></section>
+    html: `${title}
+      ${heroHtml(banners)}
+      ${depts.length ? `<section class="sec" aria-labelledby="h-dept"><div class="sec-head"><h2 id="h-dept">${t("Shop by department")}</h2></div><div class="dept-grid">${depts.map(deptCard).join("")}</div></section>` : ""}
+      ${deals.length ? `<section class="sec" aria-labelledby="h-deals"><div class="sec-head"><div class="row"><h2 id="h-deals">${t("Today's deals")}</h2><span class="timer" title="${t("Time left today")}" id="dealTimer">--:--:--</span></div><a href="#/deals">${t("See all deals")}</a></div><div class="rail">${deals.map(card).join("")}</div></section>` : ""}
+      <section class="sec" aria-labelledby="h-best"><div class="sec-head"><h2 id="h-best">${rated ? t("Best sellers") : t("Newest arrivals")}</h2><a href="#/s">${t("All products")}</a></div><div class="grid">${best.map(card).join("")}</div></section>
       ${recent.length ? `<section class="sec" aria-labelledby="h-rec"><div class="sec-head"><h2 id="h-rec">${t("Pick up where you left off")}</h2></div><div class="rail">${recent.map(card).join("")}</div></section>` : ""}`,
     mount() {
       const slides = $$(".slide"), dots = $$(".hero-ctl button[data-i]"), hero = $(".hero");
       let i = 0, paused = false;
       heroHold = false;
-      const tint = k => { hero.style.setProperty("--s-ink", HERO[k].ink); hero.style.setProperty("--s-bg", HERO[k].bg); };
+      const tint = k => { hero.style.setProperty("--s-ink", banners[k].ink); hero.style.setProperty("--s-bg", banners[k].bg); };
       heroSet = n => {
         i = (n + slides.length) % slides.length;
         tint(i);
         slides.forEach((s, k) => s.classList.toggle("on", k === i));
         dots.forEach((d, k) => d.setAttribute("aria-current", String(k === i)));
       };
-      tint(0);
-      ["mouseenter", "focusin"].forEach(ev => hero.addEventListener(ev, () => { paused = true; }));
-      ["mouseleave", "focusout"].forEach(ev => hero.addEventListener(ev, () => { paused = false; }));
-      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) timers.push(setInterval(() => { if (!paused && !heroHold && !document.hidden) heroSet(i + 1); }, 6500));
+      if (hero) {
+        tint(0);
+        ["mouseenter", "focusin"].forEach(ev => hero.addEventListener(ev, () => { paused = true; }));
+        ["mouseleave", "focusout"].forEach(ev => hero.addEventListener(ev, () => { paused = false; }));
+        if (slides.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) timers.push(setInterval(() => { if (!paused && !heroHold && !document.hidden) heroSet(i + 1); }, 6500));
+      }
       const f = n => String(n).padStart(2, "0");
       const tick = () => {
         const now = new Date(), end = new Date(now);

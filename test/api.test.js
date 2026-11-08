@@ -41,10 +41,11 @@ after(async () => {
   await close();
 });
 
-test("the 32 sample products are in the database at the start", async () => {
-  const [[r]] = await db().query("SELECT COUNT(*) AS n FROM products WHERE mine = FALSE");
-  assert.equal(r.n, 32);
-  assert.deepEqual((await call("GET", "/products/state")).body, { deleted: [], added: [] });
+test("the shop starts empty: no sample products in the database", async () => {
+  const [[r]] = await db().query("SELECT COUNT(*) AS n FROM products");
+  assert.equal(r.n, 0);
+  assert.deepEqual((await call("GET", "/products/state")).body, { added: [] });
+  assert.deepEqual((await call("GET", "/products/added")).body, []);
 });
 
 test("only the owner with the right password can connect", async () => {
@@ -53,10 +54,9 @@ test("only the owner with the right password can connect", async () => {
   assert.ok(await owner());
 });
 
-test("shoppers cannot add, delete or restore", async () => {
+test("shoppers cannot add or delete", async () => {
   assert.equal((await call("POST", "/products", vase())).status, 401);
-  assert.equal((await call("DELETE", "/products/3", null, "made-up")).status, 401);
-  assert.equal((await call("POST", "/products/restore")).status, 401);
+  assert.equal((await call("DELETE", "/products/1001", null, "made-up")).status, 401);
 });
 
 test("an added product is saved in MySQL with its date, every shopper sees it, and delete removes the row", async () => {
@@ -87,14 +87,17 @@ test("an added product is saved in MySQL with its date, every shopper sees it, a
   assert.equal((await call("DELETE", `/products/${p.id}`, null, token)).status, 404);
 });
 
-test("deleting sample products removes their rows, and Restore all brings them back", async () => {
+test("every shopper gets all added products, newest id last, and the old restore address is gone", async () => {
   const token = await owner();
-  await call("DELETE", "/products/3", null, token);
-  assert.deepEqual((await call("DELETE", "/products/7", null, token)).body, [3, 7]);
-  assert.deepEqual((await call("GET", "/products/state")).body.deleted, [3, 7]);
-  assert.deepEqual((await call("POST", "/products/restore", null, token)).body, []);
-  const [[r]] = await db().query("SELECT title FROM products WHERE id = 3");
-  assert.ok(r.title.startsWith("Slim Laptop"));
+  const a = (await call("POST", "/products", vase({ title: "Blue Teapot", cat: "home" }), token)).body;
+  const b = (await call("POST", "/products", vase({ title: "Kids Football", cat: "sports", was: 0 }), token)).body;
+  assert.equal(b.id, a.id + 1);
+  assert.deepEqual((await call("GET", "/products/state")).body, { added: [a.id, b.id] });
+  assert.deepEqual((await call("GET", "/products/added")).body.map(p => [p.title, p.cat]), [["Blue Teapot", "home"], ["Kids Football", "sports"]]);
+  assert.deepEqual((await call("DELETE", `/products/${a.id}`, null, token)).body, { deleted: a.id });
+  assert.deepEqual((await call("GET", "/products/state")).body, { added: [b.id] });
+  assert.equal((await call("POST", "/products/restore", null, token)).status, 404);
+  await call("DELETE", `/products/${b.id}`, null, token);
 });
 
 test("the live site may call the API, other sites may not", async () => {

@@ -2,7 +2,7 @@
    sell.js - The "Sell an item" page (owner only): add a product with a photo.
    With the shop server (API_URL) products are saved in its MySQL database and every
    shopper sees them; without it they are saved in this browser only (key bz:mine).
-   (file 14 of 16; the load order is at the bottom of index.html)
+   (file 13 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Sell an item ---------- */
@@ -40,10 +40,8 @@ function saveMine() {
   const mine = P.filter(p => p.mine);
   try { localStorage.setItem("bz:mine", JSON.stringify(mine)); return true; } catch (e) { return false; }
 }
-/* Only the store owner (OWNER_EMAILS in auth.js) can add or remove items.
-   isMine = items the owner added; the owner can also delete any store product. */
+/* Only the store owner (OWNER_EMAILS in auth.js) can add or remove items. isMine = items the owner added. */
 const isMine = p => p.mine && IS_OWNER;
-const saveRemoved = () => { try { localStorage.setItem("bz:removed", JSON.stringify(REMOVED)); } catch (e) { /* blocked */ } };
 function unlist(id) {
   const i = P.findIndex(p => p.id === id);
   if (i >= 0) P.splice(i, 1);
@@ -90,7 +88,7 @@ VIEWS.sell = (r = {}) => {
       ${mine.length ? `<div class="grid">${mine.map(card).join("")}</div>`
         : `<p class="muted">${t("You have not added any items yet.")}</p>`}
     </section>
-    ${removedPanel()}`
+    ${API_URL ? serverPanel() : ""}`
   };
 };
 
@@ -178,32 +176,21 @@ ACT.unsell = async el => {
   if (viaServer() && !ownerToken()) { go("/sell"); toast(t("Connect to the shop server first (owner password below), then delete the item again.")); return; }
   if (!confirm(t(viaServer() ? "Delete {name} from the shop for every shopper?" : "Delete {name} from the shop?", { name: `"${p.title}"` }) + "\n\n" + t("It will also be removed from carts and wish lists."))) return;
   if (viaServer()) {
-    try { REMOVED = await api(`/products/${id}`, { method: "DELETE" }); saveSrvRemoved(); }
+    try { await api(`/products/${id}`, { method: "DELETE" }); }
     catch (e) { if (e.status !== 404) { toast(serverError(e)); if (e.status === 401) rerender(); return; } /* 404: already gone */ }
   }
   unlist(id);
-  if (p.mine) { if (API_URL) saveSrvAdded(); else saveMine(); } else if (!API_URL) { REMOVED.push(id); saveRemoved(); }
-  if (route.name === "product") go(p.mine ? "/sell" : "/"); else rerender();
+  if (API_URL) saveSrvAdded(); else saveMine();
+  if (route.name === "product") go("/sell"); else rerender();
   toast(t(viaServer() ? "{name} was deleted for everyone" : "{name} was deleted", { name: `"${p.title}"` }));
-};
-ACT.restoreall = async () => {
-  if (!IS_OWNER || !confirm(t(API_URL ? "Bring back {n} deleted store products for every shopper?" : "Bring back {n} deleted store products?", { n: num(REMOVED.length) }))) return;
-  if (API_URL) {
-    try { REMOVED = await api("/products/restore", { method: "POST" }); } catch (e) { toast(serverError(e)); if (e.status === 401) rerender(); return; }
-    saveSrvRemoved();
-  } else { REMOVED = []; saveRemoved(); }
-  location.reload();
 };
 
 /* ---------- Connect to the shop server (owner only) ---------- */
 function serverPanel() {
-  const n = REMOVED.length, on = !!ownerToken();
-  return `<section class="sec panel stack" aria-labelledby="h-removed">
-    <div class="row" style="justify-content:space-between">
-      <h2 id="h-removed" style="${H2S}">${t("Deleted store products ({n})", { n: num(n) })}</h2>
-      ${n && on ? `<button class="btn small" type="button" data-act="restoreall">${t("Restore all")}</button>` : ""}
-    </div>
-    <p class="muted" style="font-size:.88rem">${t("Deleting a store product with its \"Delete item\" button hides it for every shopper. The list is kept in the shop server's MySQL database.")}</p>
+  const on = !!ownerToken();
+  return `<section class="sec panel stack" aria-labelledby="h-server">
+    <h2 id="h-server" style="${H2S}">${t("Shop server")}</h2>
+    <p class="muted" style="font-size:.88rem">${t("Connect once with the owner password. Then the products you add or delete are saved in the shop server's MySQL database, and every shopper sees them.")}</p>
     ${on ? `<div class="row"><span>${t("<b>Connected</b> to the shop server as the owner.")}</span><button class="btn small" type="button" data-act="srvout">${t("Disconnect")}</button></div>`
       : `<form id="ownerForm" class="stack" novalidate>
         <div class="field"><label for="ow_pass">${t("Owner password for the shop server")}</label><input id="ow_pass" type="password" autocomplete="current-password" aria-describedby="ow_err">
@@ -220,57 +207,7 @@ FORM.ownerForm = async () => {
     const r = await api("/owner/login", { method: "POST", body: JSON.stringify({ email: USER.email, password: pass.value }) });
     localStorage.setItem("bz:ownerToken", r.token);
   } catch (e) { return say(e.status === 401 ? t("Wrong password, or this account is not the owner on the server.") : e.status === 429 ? t("Too many wrong passwords. Wait 15 minutes, then try again.") : serverError(e)); }
-  rerender("#h-removed");
+  rerender("#h-server");
   toast(t("Connected to the shop server"));
 };
 ACT.srvout = () => { try { localStorage.removeItem("bz:ownerToken"); } catch (e) { /* blocked */ } rerender("#ow_pass"); };
-
-/* ---------- Publish deletions for everyone ----------
-   This site has no server, so the owner downloads removed.js and pushes it
-   to GitHub (public/js/core/removed.js). Every visitor then loads it. */
-const unpublished = () => !sameIds(REMOVED, PUBLISHED_REMOVED);
-function removedPanel() {
-  if (API_URL) return serverPanel();
-  const n = REMOVED.length, pub = PUBLISHED_REMOVED.length;
-  return `<section class="sec panel stack" aria-labelledby="h-removed">
-    <div class="row" style="justify-content:space-between">
-      <h2 id="h-removed" style="${H2S}">${t("Deleted store products ({n})", { n: num(n) })}</h2>
-      ${n ? `<button class="btn small" type="button" data-act="restoreall">${t("Restore all")}</button>` : ""}
-    </div>
-    <p class="muted" style="font-size:.88rem">${t("As the owner you can delete any product with its \"Delete item\" button. Deleting hides it in this browser straight away.")}</p>
-    <p><b>${t("For everyone:")}</b> ${t("{n} products deleted.", { n: num(pub) })}${unpublished() ? ` <span class="pub-flag">${t("You have changes only this browser sees")}</span>` : ` <span class="muted">${t("Up to date.")}</span>`}</p>
-    ${unpublished() ? `<div class="row">
-      <button class="btn brand" type="button" data-act="publish">${t("Publish deletions for everyone")}</button>
-      <button class="btn" type="button" data-act="unpublished">${t("Undo unpublished changes")}</button>
-    </div>
-    <ol class="muted pub-steps">
-      <li>${t("Click {button}. It downloads {file}.", { button: `<b>${t("Publish deletions for everyone")}</b>`, file: `<span class="mono">removed.js</span>` })}</li>
-      <li>${t("Put it in the project at {path} (replace the old one).", { path: `<span class="mono">public/js/core/removed.js</span>` })}</li>
-      <li>${t("Commit and push to GitHub. Every visitor sees the change once GitHub Pages updates (usually a few minutes).")}</li>
-    </ol>` : ""}
-  </section>`;
-}
-ACT.publish = () => {
-  if (!IS_OWNER) return;
-  const ids = [...REMOVED].sort((a, b) => a - b);
-  const names = ids.map(id => `   ${id}: ${(BASE_TITLES[id] || "").replace(/\*\//g, "")}`).join("\n");
-  const text = `/* ==================================================================
-   removed.js - Store products the owner deleted for EVERY visitor.
-   Made by "Publish deletions for everyone" on the Sell page (owner only).
-   To update it: replace this file with the downloaded one, then push to GitHub.
-   (file 1 of 16; the load order is at the bottom of index.html)
-   ================================================================== */
-${ids.length ? `/* Deleted on ${new Date().toISOString().slice(0, 10)}:\n${names}\n*/\n` : ""}const PUBLISHED_REMOVED = [${ids.join(", ")}];
-`;
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
-  a.download = "removed.js";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast(t("removed.js downloaded. Put it in public/js/core/ and push to GitHub."));
-};
-ACT.unpublished = () => {
-  if (!IS_OWNER || !confirm(t("Undo the changes you have not published? This browser will show the published list again."))) return;
-  try { localStorage.removeItem("bz:removed"); } catch (e) { /* blocked */ }
-  location.reload();
-};

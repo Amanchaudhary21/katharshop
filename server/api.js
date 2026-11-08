@@ -1,16 +1,14 @@
 /* api.js - The shop's API (library: Express). Same addresses the store's JavaScript calls:
 
    POST   /api/owner/login      owner email + owner password -> token (the "Connect" box on the Sell page)
-   GET    /api/products/state   { deleted: [sample ids], added: [ids] }  every shopper checks this every 30 s
-   GET    /api/products/deleted sample product ids the owner deleted
-   GET    /api/products/added   products the owner added, with photos
+   GET    /api/products/state   { added: [ids] }  the ids of all products; every shopper checks this every 30 s
+   GET    /api/products/added   all products, with photos
    POST   /api/products         owner: add a product (saved in MySQL with the date it was added)
-   DELETE /api/products/:id     owner: delete a product (its row is removed from MySQL)
-   POST   /api/products/restore owner: put the deleted sample products back */
+   DELETE /api/products/:id     owner: delete a product (its row is removed from MySQL) */
 const express = require("express");
 const crypto = require("crypto");
 const { db, insertProducts } = require("./db");
-const { SAMPLES, SAMPLE_IDS, CATEGORIES } = require("./catalog");
+const { CATEGORIES } = require("./catalog");
 
 const MAX_PHOTO = 1_500_000; // a data: URL; the Sell page shrinks photos to 600 px (about 100 KB)
 const round2 = n => Math.round(n * 100) / 100;
@@ -35,12 +33,7 @@ function makeApi({ ownerEmails, ownerPassword }) {
     fail(res, 401, "Connect to the shop server as the owner first.");
   }
 
-  async function deletedIds() {
-    const [rows] = await db().query("SELECT id FROM products WHERE id IN (?)", [SAMPLE_IDS]);
-    const have = new Set(rows.map(r => Number(r.id)));
-    return SAMPLE_IDS.filter(id => !have.has(id));
-  }
-  const addedIds = async () => (await db().query("SELECT id FROM products WHERE mine = TRUE ORDER BY id"))[0].map(r => Number(r.id));
+  const productIds = async () => (await db().query("SELECT id FROM products ORDER BY id"))[0].map(r => Number(r.id));
 
   /* a product as the store's JavaScript wants it (see mk() in public/js/core/data.js) */
   const toJson = r => ({
@@ -70,10 +63,9 @@ function makeApi({ ownerEmails, ownerPassword }) {
     res.json({ token });
   });
 
-  api.get("/products/state", async (req, res) => res.json({ deleted: await deletedIds(), added: await addedIds() }));
-  api.get("/products/deleted", async (req, res) => res.json(await deletedIds()));
+  api.get("/products/state", async (req, res) => res.json({ added: await productIds() }));
   api.get("/products/added", async (req, res) => {
-    const [rows] = await db().query("SELECT * FROM products WHERE mine = TRUE ORDER BY id");
+    const [rows] = await db().query("SELECT * FROM products ORDER BY id");
     res.json(rows.map(toJson));
   });
 
@@ -112,13 +104,7 @@ function makeApi({ ownerEmails, ownerPassword }) {
     if (!Number.isInteger(id)) return fail(res, 400, "Bad product id.");
     const [r] = await db().query("DELETE FROM products WHERE id = ?", [id]);
     if (!r.affectedRows) return fail(res, 404, "No product " + id);
-    res.json(await deletedIds());
-  });
-
-  api.post("/products/restore", requireOwner, async (req, res) => {
-    const gone = await deletedIds();
-    await insertProducts(SAMPLES.filter(p => gone.includes(p.id)), true);
-    res.json(await deletedIds());
+    res.json({ deleted: id });
   });
 
   api.use((req, res) => fail(res, 404, "Not found"));

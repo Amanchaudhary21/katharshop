@@ -1,6 +1,6 @@
 /* ==================================================================
    core.js - Helpers, the saved cart and wish list, price maths, and the page switcher (router).
-   (file 9 of 16; the load order is at the bottom of index.html)
+   (file 8 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* ---------- Core: helpers, saved state, cart maths, router ---------- */
@@ -130,7 +130,6 @@ const saveSrvAdded = () => {
   try { localStorage.setItem("bz:srvAdded", JSON.stringify(P.filter(p => p.mine))); }
   catch (e) { try { localStorage.removeItem("bz:srvAdded"); } catch (x) { /* blocked */ } /* full: they load from the server again */ }
 };
-const saveSrvRemoved = () => { try { localStorage.setItem("bz:srvRemoved", JSON.stringify(REMOVED)); } catch (e) { /* blocked */ } };
 function serverError(e) {
   if (e.status === 401) { try { localStorage.removeItem("bz:ownerToken"); } catch (x) { /* blocked */ } return t("The shop server needs your owner password again (Sell page)."); }
   return e.status ? t("The shop server could not do that (error {n}).", { n: e.status }) : t("Can't reach the shop server. Is it running? (start.bat or npm start)");

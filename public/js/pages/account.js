@@ -1,7 +1,7 @@
 /* ==================================================================
    account.js - The account menu in the header (the round avatar) and
    the "Your profile" page with every detail of the signed-in account.
-   (file 15 of 16; the load order is at the bottom of index.html)
+   (file 14 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 const fullName = u => [u.first, u.last].filter(Boolean).join(" ");
@@ -22,7 +22,7 @@ function signInWays(u) {
 /* ---------- Header account menu ---------- */
 function mountAccountMenu() {
   const login = USER.email || USER.phone;
-  $("#cartCount").parentElement.insertAdjacentHTML("afterend", `<button class="icon-btn avatar" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" aria-label="${t("Account: {name}", { name: esc(fullName(USER)) })}" title="${esc(fullName(USER))} (${esc(login)})">${avatar(USER)}</button>`);
+  $("#cartCount").parentElement.insertAdjacentHTML("afterend", `<button class="icon-btn avatar" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" aria-label="${t("Account: {name}", { name: esc(fullName(USER)) })}" data-tip="${t("Your account")}">${avatar(USER)}</button>`);
   document.body.insertAdjacentHTML("beforeend", `<div class="user-menu" id="userMenu" hidden>
     <div class="um-head"><span class="um-ava" aria-hidden="true">${avatar(USER)}</span><div><b>${esc(fullName(USER))}</b><span>${esc(login)}</span></div></div>
     <nav aria-label="${t("Your account")}">

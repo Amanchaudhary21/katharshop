@@ -72,7 +72,7 @@ or double-click `start.bat` (it runs `npm install` itself the first time). The s
 │   └── js/
 │       ├── core/            shared pieces, loaded first
 │       │   ├── i18n.js      languages: the language menu and t("English text")
-│       │   ├── data.js      products, categories, coupons, delivery prices
+│       │   ├── data.js      departments, coupons, delivery prices, where products come from
 │       │   ├── auth.js      sign-in screen: Google only
 │       │   ├── art.js       draws the product pictures (or shows your photo)
 │       │   └── core.js      helpers, saved cart and wish list, price maths, page switcher
@@ -90,8 +90,8 @@ or double-click `start.bat` (it runs `npm install` itself the first time). The s
 ├── server.js                the server (Node.js + Express): shows public/ and runs the API at /api
 ├── server/
 │   ├── api.js               the shop API: owner sign-in, add, delete and restore products
-│   ├── db.js                MySQL (mysql2): makes the database and tables, adds the sample products
-│   └── catalog.js           reads the 32 sample products from public/js/core/data.js
+│   ├── db.js                MySQL (mysql2): makes the database and its tables
+│   └── catalog.js           reads the department list from public/js/core/data.js
 ├── test/
 │   └── api.test.js          `npm test`: checks the API (uses a throwaway shopnest_test database)
 ├── .env.example             copy to .env: MySQL password and owner password (.env is not uploaded)
@@ -110,7 +110,7 @@ Edit, save with Ctrl+S, then press F5 in the browser.
 - `public/index.html`: find `<span>shopnest</span>` and type your own shop name.
 - `public/js/core/data.js`: find `const FREE_SHIP_MIN` and change `SHIP_STD = 4.99` to `SHIP_STD = 2.99`.
   Standard delivery now costs $2.99.
-- `public/js/core/data.js`: change the words of any product title. It changes everywhere.
+- `public/js/core/data.js`: change the words of a department in `CATS`. It changes everywhere.
 - `public/css/style.css`: the colors are the variables at the very top (`--brand`, `--accent` ...).
   The first block is the light theme; the dark theme blocks come right after it.
 
@@ -167,8 +167,9 @@ The owner (admin) is amanecdy@gmail.com; anyone who signs in with another Google
   (with its photo and the date and time it was added, column `created`).
 - When the owner **deletes** a product, its row is removed from the database.
 
-Every shopper's store shows the change within 30 seconds (straight away on their next visit).
-**Restore all** puts the 32 sample products back; products the owner added are gone for good once deleted.
+The shop starts empty: there are no sample products. Every product is one the owner added.
+Every shopper's store shows a change within 30 seconds (straight away on their next visit).
+A deleted product is gone for good.
 
 1. Copy `.env.example` to `.env` (it is not uploaded to GitHub) and fill in your MySQL password
    and an owner password:
@@ -179,13 +180,14 @@ Every shopper's store shows the change within 30 seconds (straight away on their
    OWNER_PASSWORD=choose-a-long-password
    ```
 
-2. Start MySQL, then `npm start` (or `start.bat`). The `shopnest` database and its tables are made on
-   the first start, with the 32 sample products. Everything runs at <http://localhost:8080>.
+2. Start MySQL, then `npm start` (or `start.bat`). The `shopnest` database and its two tables
+   (`products` and `owner_sessions`) are made on the first start. Everything runs at <http://localhost:8080>.
 3. Sign in to the store as the owner, open **Sell an item**, and enter the owner password under
-   **Deleted store products** to connect. Now **Save item to the shop** adds a product for every shopper,
-   **Delete item** removes one for every shopper, and **Restore all** brings back the sample products.
+   **Shop server** to connect. Now **Save item to the shop** adds a product for every shopper,
+   and **Delete item** removes one for every shopper.
 
-To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the MySQL command line.
+To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the
+MySQL command line. `created` is in UTC (Japan time minus 9 hours).
 
 ## The same products on your phone and every other device (ngrok link)
 

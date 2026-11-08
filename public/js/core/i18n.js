@@ -4,7 +4,7 @@
    the shopper's language from js/i18n/<code>.js (falls back to English).
    {name} in a text is filled from the second argument: t("Hi {n}", { n: "Aman" }).
    Text in index.html marked with data-t is translated the same way.
-   (file 2 of 16; the load order is at the bottom of index.html)
+   (file 1 of 15; the load order is at the bottom of index.html)
    ================================================================== */
 
 /* [code, name shown in the menu, locale for numbers and dates] */
@@ -40,7 +40,7 @@ function fmtDate(date, opts) {
 const num = (n, d) => fmtNum(Number(n), d === undefined ? {} : { minimumFractionDigits: d, maximumFractionDigits: d });
 
 /* The language menu (header and sign-in screen). Picking one reloads the page in that language. */
-const langPicker = id => `<label class="lang-pick" for="${id}"><span class="sr">${t("Language")}</span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="${id}" data-lang>${LANGS.map(([c, name]) => `<option value="${c}" lang="${c}"${c === LANG ? " selected" : ""}>${name}</option>`).join("")}</select></label>`;
+const langPicker = id => `<label class="lang-pick" for="${id}" data-tip="${t("Language")}"><span class="sr">${t("Language")}</span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="${id}" data-lang>${LANGS.map(([c, name]) => `<option value="${c}" lang="${c}"${c === LANG ? " selected" : ""}>${name}</option>`).join("")}</select></label>`;
 document.addEventListener("change", e => {
   if (!e.target.matches("[data-lang]")) return;
   try { localStorage.setItem("bz:lang", e.target.value); } catch (x) { /* blocked */ }
