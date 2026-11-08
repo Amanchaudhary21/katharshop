@@ -125,6 +125,15 @@ window.addEventListener("popstate", () => {
   if (h.startsWith("#/")) { show(h.slice(1), false); syncSearch(); }
   else if (!h || h === "#") { show("/", false); syncSearch(); }
 });
+/* Sticky top bar: share its height with the CSS (--head-h), and add a shadow once the page scrolls under it */
+const topnav = $("#topnav");
+const setHeadH = () => document.documentElement.style.setProperty("--head-h", topnav.offsetHeight + "px");
+setHeadH();
+if ("ResizeObserver" in window) new ResizeObserver(setHeadH).observe(topnav); else addEventListener("resize", setHeadH);
+const markStuck = () => topnav.classList.toggle("stuck", scrollY > 0);
+markStuck();
+addEventListener("scroll", markStuck, { passive: true });
+
 $("#topBtn").addEventListener("click", () => { window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); $("#main").focus({ preventScroll: true }); });
 $("#resetBtn").addEventListener("click", () => {
   try { Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k)); } catch (e) { /* blocked */ }
