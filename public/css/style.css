@@ -149,10 +149,24 @@ html { scroll-padding-top: calc(var(--head-h) + 8px); }
   radial-gradient(circle at 42px 0, var(--brand-3) 13px, transparent 14px) 0 0 / 56px 14px repeat-x; }
 .catnav { background: var(--surface); border-bottom: 1px solid var(--line); }
 /* departments that don't fit scroll sideways, with a thin scrollbar along the bottom */
-.catnav ul { display: flex; gap: 2px; overflow-x: auto; overscroll-behavior-x: contain; padding-block: 8px 6px; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
-.catnav ul::-webkit-scrollbar { height: 6px; }
-.catnav ul::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; }
-.catnav ul::-webkit-scrollbar-track { background: transparent; }
+.catnav ul { display: flex; gap: 2px; overflow-x: auto; overscroll-behavior-x: contain; padding-block: 8px 6px; }
+
+/* Always-visible scrollbars: the page (right side), the department row and product rows (bottom).
+   Chrome and Edge use the ::-webkit-scrollbar styles, which also stop Windows 11 from hiding them.
+   Don't add scrollbar-width or scrollbar-color to these boxes: Chrome would then ignore the styles below. */
+html::-webkit-scrollbar { width: 12px; }
+html::-webkit-scrollbar-track { background: var(--surface-2); }
+html::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; border: 3px solid var(--surface-2); }
+html::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+.catnav ul::-webkit-scrollbar, .rail::-webkit-scrollbar, .dept-grid::-webkit-scrollbar { height: 6px; }
+.catnav ul::-webkit-scrollbar-track, .rail::-webkit-scrollbar-track, .dept-grid::-webkit-scrollbar-track { background: var(--surface-2); border-radius: 999px; }
+.catnav ul::-webkit-scrollbar-thumb, .rail::-webkit-scrollbar-thumb, .dept-grid::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; }
+.catnav ul::-webkit-scrollbar-thumb:hover, .rail::-webkit-scrollbar-thumb:hover, .dept-grid::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+/* Firefox has no ::-webkit-scrollbar */
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-color: var(--muted) var(--surface-2); }
+  .catnav ul, .rail, .dept-grid { scrollbar-width: thin; scrollbar-color: var(--muted) var(--surface-2); }
+}
 .catnav a { display: inline-block; white-space: nowrap; padding: 6px 10px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .9rem; color: var(--ink); }
 .catnav a:hover { background: var(--surface-2); }
 .catnav a[aria-current="page"] { background: var(--btn); color: var(--on-btn); }
@@ -202,7 +216,7 @@ main:focus, main:focus-visible { outline: none; }
 .sec-head a { font-weight: 600; color: var(--brand); }
 :root[data-theme="dark"] .sec-head a { color: var(--focus); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sec-head a { color: var(--focus); } }
-.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(180px, 210px); gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(180px, 210px); gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
 .rail > * { scroll-snap-align: start; }
 .timer { font-family: var(--font-mono); font-weight: 500; background: var(--ink); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: .85rem; }
 
@@ -379,7 +393,7 @@ textarea { min-height: 90px; resize: vertical; }
   .form-grid { grid-template-columns: minmax(0, 1fr); }
   .foot .cols { grid-template-columns: minmax(0, 1fr); }
   .rail { grid-auto-columns: minmax(150px, 170px); }
-  .dept-grid { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(250px, 78%); overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; scrollbar-width: thin; }
+  .dept-grid { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(250px, 78%); overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; }
   .dept { scroll-snap-align: start; }
 }
 @media (max-width: 560px) {
