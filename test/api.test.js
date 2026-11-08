@@ -97,9 +97,24 @@ test("deleting sample products removes their rows, and Restore all brings them b
   assert.ok(r.title.startsWith("Slim Laptop"));
 });
 
+test("the live site may call the API, other sites may not", async () => {
+  const ask = async origin => (await fetch(base + "/api/products/state", { method: "OPTIONS", headers: {
+    Origin: origin, "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "content-type,ngrok-skip-browser-warning" } })).headers;
+  const ok = await ask("https://amanchaudhary21.github.io");
+  assert.equal(ok.get("access-control-allow-origin"), "https://amanchaudhary21.github.io");
+  assert.match(ok.get("access-control-allow-headers"), /ngrok-skip-browser-warning/);
+  assert.equal((await ask("https://evil.example")).get("access-control-allow-origin"), null);
+});
+
 test("bad products are refused", async () => {
   const token = await owner();
   for (const bad of [{ title: "ab" }, { cat: "nope" }, { price: 0 }, { was: 4, price: 5 }, { photo: "http://x/y.jpg" }, { stock: -1 }]) {
     assert.equal((await call("POST", "/products", vase(bad), token)).status, 400, JSON.stringify(bad));
   }
+});
+
+// keep this test last: it locks this computer's address out of owner sign-in for 15 minutes
+test("after 10 wrong owner passwords, sign-in waits 15 minutes", async () => {
+  for (let i = 0; i < 10; i++) assert.equal((await call("POST", "/owner/login", { email: "amanecdy@gmail.com", password: "guess" + i })).status, 401);
+  assert.equal((await call("POST", "/owner/login", { email: "amanecdy@gmail.com", password: "test-owner-pass" })).status, 429);
 });

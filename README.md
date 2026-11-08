@@ -187,9 +187,30 @@ Every shopper's store shows the change within 30 seconds (straight away on their
 
 To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the MySQL command line.
 
-The store uses the server only when it is opened at `localhost`. To use it on the live site,
-put the server online, put its address in `API_URL` at `public/js/core/data.js`,
-and add the site's address to `CORS_ORIGINS` in `.env`.
+## The same products on your phone and every other device (ngrok link)
+
+Your laptop is the server: the products live in its MySQL database. A free **ngrok** link gives the
+laptop a fixed `https://….ngrok-free.app` address on the internet, and the live site (GitHub Pages)
+gets its products from there. So the laptop, your phone and every shopper see the same products.
+
+1. Make a free account at <https://ngrok.com>. In the ngrok dashboard copy **Your Authtoken**, and under
+   **Domains** your free domain (like `something.ngrok-free.app`).
+2. Put both in `.env` (never in GitHub):
+
+   ```properties
+   NGROK_AUTHTOKEN=your-authtoken
+   NGROK_DOMAIN=something.ngrok-free.app
+   ```
+
+3. Run `start.bat` (or `npm start`). The window says
+   `Other devices reach this shop server at https://something.ngrok-free.app`.
+4. Put that address in `public/js/core/data.js` at `const SHOP_SERVER = "";` and push to GitHub.
+5. On the phone, open the live site as usual. To add or delete products there, open **Sell an item** and
+   connect with the owner password once (set `OWNER_PASSWORD` in `.env`, so it stays the same).
+
+While the laptop is off, the live site shows the products it saw last, and adding or deleting waits until
+the laptop runs `start.bat` again. The store only checks for changes while it is on screen, because the
+free ngrok plan has a monthly limit. After 10 wrong owner passwords, sign-in from that address waits 15 minutes.
 
 Tables made by the old Java backend (`product`, `product_color`, ...) are no longer used.
 Their products were copied into `products` on the first start; you can drop the old tables if you like.

@@ -425,6 +425,7 @@ I18N.hi = {
   "Connect": "जुड़ें",
   "Enter the owner password.": "मालिक पासवर्ड लिखें।",
   "Wrong password, or this account is not the owner on the server.": "गलत पासवर्ड, या यह खाता सर्वर पर मालिक नहीं है।",
+  "Too many wrong passwords. Wait 15 minutes, then try again.": "बहुत बार गलत पासवर्ड। 15 मिनट रुकें, फिर दोबारा कोशिश करें।",
   "Connected to the shop server": "दुकान सर्वर से जुड़ गए",
   "As the owner you can delete any product with its \"Delete item\" button. Deleting hides it in this browser straight away.": "मालिक के रूप में आप \"सामान हटाएँ\" बटन से कोई भी उत्पाद हटा सकते हैं। हटाने पर वह इस ब्राउज़र में तुरंत छिप जाता है।",
   "For everyone:": "सबके लिए:",

@@ -214,7 +214,7 @@ if (USER) {
   }
   if (API_URL) {
     syncShop();
-    setInterval(syncShop, 30000);
+    setInterval(() => { if (!document.hidden) syncShop(); }, 30000); // only while the store is on screen (saves the free ngrok link's monthly limit)
     document.addEventListener("visibilitychange", () => { if (!document.hidden) syncShop(); });
   }
 }

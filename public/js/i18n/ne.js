@@ -425,6 +425,7 @@ I18N.ne = {
   "Connect": "जोड्नुहोस्",
   "Enter the owner password.": "मालिक पासवर्ड लेख्नुहोस्।",
   "Wrong password, or this account is not the owner on the server.": "पासवर्ड गलत छ, वा यो खाता सर्भरमा मालिक होइन।",
+  "Too many wrong passwords. Wait 15 minutes, then try again.": "धेरै पटक गलत पासवर्ड। १५ मिनेट पर्खनुहोस्, अनि फेरि प्रयास गर्नुहोस्।",
   "Connected to the shop server": "पसलको सर्भरमा जोडियो",
   "As the owner you can delete any product with its \"Delete item\" button. Deleting hides it in this browser straight away.": "मालिकको रूपमा तपाईं \"सामान मेटाउनुहोस्\" बटनले जुनसुकै सामान मेटाउन सक्नुहुन्छ। मेटाउँदा यो ब्राउजरमा तुरुन्तै लुकिन्छ।",
   "For everyone:": "सबैका लागि:",

@@ -113,9 +113,11 @@ function toast(msg, link) {
    The owner's token comes from "Connect" on the Sell page and lets them delete for everyone. */
 const ownerToken = () => { try { return localStorage.getItem("bz:ownerToken") || ""; } catch (e) { return ""; } };
 async function api(path, opts = {}) {
-  const headers = { "Content-Type": "application/json" }, t = ownerToken();
+  // ngrok-skip-browser-warning: the free ngrok link otherwise answers with a "you are about to visit" page
+  const headers = { "Content-Type": "application/json", "ngrok-skip-browser-warning": "1" }, t = ownerToken();
   if (t) headers.Authorization = "Bearer " + t;
-  const res = await fetch(API_URL + "/api" + path, { ...opts, headers });
+  const signal = AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined; // laptop off or slow: give up after 20 s
+  const res = await fetch(API_URL + "/api" + path, { ...opts, headers, signal });
   if (!res.ok) throw Object.assign(new Error("Server error " + res.status), { status: res.status });
   return res.json();
 }

@@ -50,9 +50,21 @@ function makeApi({ ownerEmails, ownerPassword }) {
     photo: r.photo, created: new Date(r.created).toISOString()
   });
 
+  /* Slow down password guessing (the server can be reached from the internet through ngrok):
+     after 10 wrong passwords from one address, that address waits 15 minutes */
+  const LOCK_AFTER = 10, LOCK_MS = 15 * 60 * 1000, misses = new Map(); // address -> { n, first }
   api.post("/owner/login", async (req, res) => {
+    const ip = req.ip || "?", now = Date.now();
+    if (misses.size > 1000) for (const [k, m] of misses) if (now - m.first > LOCK_MS) misses.delete(k);
+    let m = misses.get(ip);
+    if (m && now - m.first > LOCK_MS) { misses.delete(ip); m = null; }
+    if (m && m.n >= LOCK_AFTER) return fail(res, 429, "Too many wrong passwords. Wait 15 minutes, then try again.");
     const { email, password } = req.body || {};
-    if (!isOwnerEmail(email) || !same(password || "", ownerPassword)) return fail(res, 401, "Wrong owner email or password.");
+    if (!isOwnerEmail(email) || !same(password || "", ownerPassword)) {
+      if (m) m.n++; else misses.set(ip, { n: 1, first: now });
+      return fail(res, 401, "Wrong owner email or password.");
+    }
+    misses.delete(ip);
     const token = crypto.randomBytes(32).toString("hex");
     await db().query("INSERT INTO owner_sessions (token, email) VALUES (?, ?)", [token, email.trim().toLowerCase()]);
     res.json({ token });

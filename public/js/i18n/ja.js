@@ -428,6 +428,7 @@ I18N.ja = {
   "Connect": "接続",
   "Enter the owner password.": "オーナーパスワードを入力してください。",
   "Wrong password, or this account is not the owner on the server.": "パスワードが違うか、このアカウントはサーバー上のオーナーではありません。",
+  "Too many wrong passwords. Wait 15 minutes, then try again.": "パスワードの間違いが多すぎます。15 分待ってから、もう一度お試しください。",
   "Connected to the shop server": "ショップサーバーに接続しました",
   "As the owner you can delete any product with its \"Delete item\" button. Deleting hides it in this browser straight away.": "オーナーは「商品を削除」ボタンでどの商品でも削除できます。削除するとこのブラウザーではすぐに非表示になります。",
   "For everyone:": "すべての人向け:",

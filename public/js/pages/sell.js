@@ -219,7 +219,7 @@ FORM.ownerForm = async () => {
   try {
     const r = await api("/owner/login", { method: "POST", body: JSON.stringify({ email: USER.email, password: pass.value }) });
     localStorage.setItem("bz:ownerToken", r.token);
-  } catch (e) { return say(e.status === 401 ? t("Wrong password, or this account is not the owner on the server.") : serverError(e)); }
+  } catch (e) { return say(e.status === 401 ? t("Wrong password, or this account is not the owner on the server.") : e.status === 429 ? t("Too many wrong passwords. Wait 15 minutes, then try again.") : serverError(e)); }
   rerender("#h-removed");
   toast(t("Connected to the shop server"));
 };

@@ -161,11 +161,16 @@ P.push(
 );
 /* Real product photos, saved as img/products/<id>.jpg (sources and licences: img/products/CREDITS.md) */
 P.forEach(p => { p.photo = `img/products/${p.id}.jpg`; });
-/* The shop server (server.js: Node.js + Express + MySQL). It shows this store at http://localhost:8080
-   and runs the API there too, so products the owner adds or deletes are saved in MySQL and every
-   visitor sees the change. Put your hosted server's address here to use it on the live site too.
-   Empty = no server: added items stay in the owner's browser, deletions use the published removed.js list. */
-const API_URL = ["localhost", "127.0.0.1"].includes(location.hostname) && location.protocol.startsWith("http") ? location.origin : "";
+/* The shop server (server.js: Node.js + Express + MySQL) keeps the products in MySQL, so what the
+   owner adds or deletes is the same on every device.
+   - Opened from the server itself (http://localhost:8080 or its ngrok link): it uses that server.
+   - Opened on the live site (GitHub Pages): it uses SHOP_SERVER, the ngrok link to your laptop
+     (NGROK_DOMAIN in .env; server.js prints it when it starts). When the laptop is off, the store
+     shows the products it saw last. Empty = no server: added items stay in the owner's browser,
+     and deletions use the published removed.js list. */
+const SHOP_SERVER = "";
+const API_URL = !location.protocol.startsWith("http") ? ""
+  : location.hostname.endsWith("github.io") ? SHOP_SERVER : location.origin;
 /* Items the owner added on the "Sell an item" page (see js/pages/sell.js). With a server: the last
    list it sent (bz:srvAdded), checked again as soon as the page loads (main.js). Without one: this browser only (bz:mine). */
 try { (JSON.parse(localStorage.getItem(API_URL ? "bz:srvAdded" : "bz:mine")) || []).forEach(p => { if (p && p.id && p.photo) P.push(p); }); } catch (e) { /* blocked */ }
