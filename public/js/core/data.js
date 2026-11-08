@@ -161,12 +161,14 @@ P.push(
 );
 /* Real product photos, saved as img/products/<id>.jpg (sources and licences: img/products/CREDITS.md) */
 P.forEach(p => { p.photo = `img/products/${p.id}.jpg`; });
-/* Items you added yourself on the "Sell an item" page (saved in this browser, see js/pages/sell.js) */
-try { (JSON.parse(localStorage.getItem("bz:mine")) || []).forEach(p => { if (p && p.id && p.photo) P.push(p); }); } catch (e) { /* blocked */ }
-/* The shop server (backend folder: Spring Boot + MySQL). When it is set, products the owner
-   deletes there are hidden for every visitor. Put your hosted server's address here to use it
-   on the live site too. Empty = no server: deletions use the published removed.js list instead. */
-const API_URL = ["localhost", "127.0.0.1"].includes(location.hostname) ? "http://localhost:8081" : "";
+/* The shop server (server.js: Node.js + Express + MySQL). It shows this store at http://localhost:8080
+   and runs the API there too, so products the owner adds or deletes are saved in MySQL and every
+   visitor sees the change. Put your hosted server's address here to use it on the live site too.
+   Empty = no server: added items stay in the owner's browser, deletions use the published removed.js list. */
+const API_URL = ["localhost", "127.0.0.1"].includes(location.hostname) && location.protocol.startsWith("http") ? location.origin : "";
+/* Items the owner added on the "Sell an item" page (see js/pages/sell.js). With a server: the last
+   list it sent (bz:srvAdded), checked again as soon as the page loads (main.js). Without one: this browser only (bz:mine). */
+try { (JSON.parse(localStorage.getItem(API_URL ? "bz:srvAdded" : "bz:mine")) || []).forEach(p => { if (p && p.id && p.photo) P.push(p); }); } catch (e) { /* blocked */ }
 /* Store products the owner deleted. With a server: the last list it sent (bz:srvRemoved), checked
    again as soon as the page loads (main.js). Without one: the published list (js/core/removed.js),
    and the owner's browser keeps its own list (bz:removed) until it is published. See js/pages/sell.js */

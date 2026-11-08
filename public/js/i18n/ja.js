@@ -83,7 +83,7 @@ I18N.ja = {
   "Added to your cart": "カートに追加しました",
   "The shop server needs your owner password again (Sell page).": "ショップサーバーにオーナーパスワードを再入力してください (出品ページ)。",
   "The shop server could not do that (error {n}).": "ショップサーバーで処理できませんでした (エラー {n})。",
-  "Can't reach the shop server. Is it running? (backend folder: mvnw spring-boot:run)": "ショップサーバーに接続できません。起動していますか? (backend フォルダー: mvnw spring-boot:run)",
+  "Can't reach the shop server. Is it running? (start.bat or npm start)": "ショップサーバーに接続できません。起動していますか? (start.bat / npm start)",
 
   // ---------- home and lists ----------
   "Play slideshow": "スライドショーを再生",
@@ -396,6 +396,9 @@ I18N.ja = {
   "One point per line": "1行に1項目",
   "Save item to the shop": "商品をストアに保存",
   "Saved only in this browser. \"Reset demo data\" in the footer removes it.": "このブラウザーにのみ保存されます。ページ下部の「デモデータをリセット」で削除されます。",
+  "Saved in the shop server's MySQL database. Every shopper sees it.": "ショップサーバーの MySQL データベースに保存されます。すべてのお客様に表示されます。",
+  "Connect to the shop server first (owner password below), then save the item again.": "まずショップサーバーに接続し (下のオーナーパスワード)、もう一度商品を保存してください。",
+  "{name} is now in the shop for every shopper": "{name} をすべてのお客様向けにストアに追加しました",
   "Your items ({n})": "出品した商品 ({n})",
   "You have not added any items yet.": "まだ商品を追加していません。",
   "That file is not a picture. Choose a JPG or PNG.": "画像ファイルではありません。JPG または PNG を選んでください。",
@@ -419,7 +422,7 @@ I18N.ja = {
   "<b>Connected</b> to the shop server as the owner.": "オーナーとしてショップサーバーに<b>接続中</b>です。",
   "Disconnect": "切断",
   "Owner password for the shop server": "ショップサーバーのオーナーパスワード",
-  "Set in backend/local.properties (app.owner-password), or printed when the server starts.": "backend/local.properties (app.owner-password) で設定するか、サーバー起動時に表示されます。",
+  "Set in .env (OWNER_PASSWORD), or printed when the server starts.": ".env (OWNER_PASSWORD) で設定するか、サーバー起動時に表示されます。",
   "Connect": "接続",
   "Enter the owner password.": "オーナーパスワードを入力してください。",
   "Wrong password, or this account is not the owner on the server.": "パスワードが違うか、このアカウントはサーバー上のオーナーではありません。",

@@ -83,7 +83,7 @@ I18N.ne = {
   "Added to your cart": "कार्टमा थपियो",
   "The shop server needs your owner password again (Sell page).": "पसलको सर्भरलाई फेरि तपाईंको मालिक पासवर्ड चाहिन्छ (बेच्ने पेज)।",
   "The shop server could not do that (error {n}).": "पसलको सर्भरले यो गर्न सकेन (त्रुटि {n})।",
-  "Can't reach the shop server. Is it running? (backend folder: mvnw spring-boot:run)": "पसलको सर्भरमा पुग्न सकिएन। के यो चलिरहेको छ? (backend फोल्डर: mvnw spring-boot:run)",
+  "Can't reach the shop server. Is it running? (start.bat or npm start)": "पसलको सर्भरमा पुग्न सकिएन। के यो चलिरहेको छ? (start.bat / npm start)",
 
   // ---------- home and lists ----------
   "Play slideshow": "स्लाइडसो चलाउनुहोस्",
@@ -393,6 +393,9 @@ I18N.ne = {
   "One point per line": "हरेक लाइनमा एउटा बुँदा",
   "Save item to the shop": "सामान पसलमा सुरक्षित गर्नुहोस्",
   "Saved only in this browser. \"Reset demo data\" in the footer removes it.": "यही ब्राउजरमा मात्र सुरक्षित हुन्छ। तलको \"डेमो डाटा रिसेट गर्नुहोस्\" ले यसलाई हटाउँछ।",
+  "Saved in the shop server's MySQL database. Every shopper sees it.": "पसल सर्भरको MySQL डाटाबेसमा सुरक्षित हुन्छ। सबै ग्राहकले देख्छन्।",
+  "Connect to the shop server first (owner password below), then save the item again.": "पहिले पसलको सर्भरमा जोड्नुहोस् (तलको मालिक पासवर्ड), अनि फेरि सामान सुरक्षित गर्नुहोस्।",
+  "{name} is now in the shop for every shopper": "{name} अब सबै ग्राहकका लागि पसलमा छ",
   "Your items ({n})": "तपाईंका सामान ({n})",
   "You have not added any items yet.": "तपाईंले अहिलेसम्म कुनै सामान थप्नुभएको छैन।",
   "That file is not a picture. Choose a JPG or PNG.": "त्यो फाइल तस्बिर होइन। JPG वा PNG छान्नुहोस्।",
@@ -416,7 +419,7 @@ I18N.ne = {
   "<b>Connected</b> to the shop server as the owner.": "मालिकको रूपमा पसलको सर्भरमा <b>जोडिएको</b> छ।",
   "Disconnect": "जडान हटाउनुहोस्",
   "Owner password for the shop server": "पसल सर्भरको मालिक पासवर्ड",
-  "Set in backend/local.properties (app.owner-password), or printed when the server starts.": "backend/local.properties (app.owner-password) मा राखिन्छ, वा सर्भर सुरु हुँदा देखाइन्छ।",
+  "Set in .env (OWNER_PASSWORD), or printed when the server starts.": ".env (OWNER_PASSWORD) मा राखिन्छ, वा सर्भर सुरु हुँदा देखाइन्छ।",
   "Connect": "जोड्नुहोस्",
   "Enter the owner password.": "मालिक पासवर्ड लेख्नुहोस्।",
   "Wrong password, or this account is not the owner on the server.": "पासवर्ड गलत छ, वा यो खाता सर्भरमा मालिक होइन।",

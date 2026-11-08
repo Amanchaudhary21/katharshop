@@ -50,14 +50,16 @@ so every push to `main` also updates the Store app (no new upload needed for nor
 **Easiest:** double-click `public/index.html`. It opens in your browser. No internet needed
 (with internet you also get the nicer Google fonts).
 
-**With the little web server** (needed for "Sign in with Google"):
+**With the server** (needed for "Sign in with Google" and for saving products in MySQL):
 
 ```bash
+npm install     # only the first time: downloads Express and mysql2
 npm start
 ```
 
-or double-click `start.bat`. The store opens at <http://localhost:8080>. You need
-[Node.js](https://nodejs.org) 18 or newer. Nothing to install with npm.
+or double-click `start.bat` (it runs `npm install` itself the first time). The store opens at
+<http://localhost:8080>. You need [Node.js](https://nodejs.org) 20.12 or newer and MySQL
+(see [Adding and deleting products for everyone](#adding-and-deleting-products-for-everyone-nodejs-server--mysql)).
 
 ## Project structure
 
@@ -85,9 +87,16 @@ or double-click `start.bat`. The store opens at <http://localhost:8080>. You nee
 │       └── main.js          starts the store: menus, search box, theme button, clicks
 ├── .github/workflows/
 │   └── deploy.yml           publishes public/ to GitHub Pages on every push
-├── server.js                tiny web server for the public folder (http://localhost:8080)
+├── server.js                the server (Node.js + Express): shows public/ and runs the API at /api
+├── server/
+│   ├── api.js               the shop API: owner sign-in, add, delete and restore products
+│   ├── db.js                MySQL (mysql2): makes the database and tables, adds the sample products
+│   └── catalog.js           reads the 32 sample products from public/js/core/data.js
+├── test/
+│   └── api.test.js          `npm test`: checks the API (uses a throwaway shopnest_test database)
+├── .env.example             copy to .env: MySQL password and owner password (.env is not uploaded)
 ├── start.bat                double-click to start the server and open the store
-├── package.json             `npm start` runs server.js
+├── package.json             `npm start` runs server.js, `npm test` runs the tests
 └── README.md
 ```
 
@@ -147,30 +156,40 @@ Click the **+** button in the header to sell an item: choose a photo, add a name
 Your items have a red **Delete item** button on their card and a **Delete this item** button on
 their product page. Only you see these buttons.
 
-## Deleting products for everyone (shop server + MySQL)
+## Adding and deleting products for everyone (Node.js server + MySQL)
 
-When the owner (amanecdy@gmail.com) deletes a store product, the `backend` server saves that in
-MySQL, and every shopper's store hides it within 30 seconds (straight away on their next visit).
+The whole project is JavaScript: the store in the browser, and `server.js` on your computer
+(Node.js with the **Express** library). Products are kept in **MySQL** (library **mysql2**).
 
-1. Make `backend/local.properties` (it is not uploaded to GitHub) with your MySQL password and an owner password:
+The owner (admin) is amanecdy@gmail.com; anyone who signs in with another Google account is a shopper.
+
+- When the owner **adds** a product on the Sell page, it is saved in the MySQL `products` table
+  (with its photo and the date and time it was added, column `created`).
+- When the owner **deletes** a product, its row is removed from the database.
+
+Every shopper's store shows the change within 30 seconds (straight away on their next visit).
+**Restore all** puts the 32 sample products back; products the owner added are gone for good once deleted.
+
+1. Copy `.env.example` to `.env` (it is not uploaded to GitHub) and fill in your MySQL password
+   and an owner password:
 
    ```properties
-   spring.datasource.password=your-mysql-root-password
-   app.owner-password=choose-a-long-password
+   DB_USER=root
+   DB_PASSWORD=your-mysql-password
+   OWNER_PASSWORD=choose-a-long-password
    ```
 
-2. Start the server (needs Java 25). The `shopnest` database is made on the first start:
-
-   ```bash
-   cd backend
-   mvnw spring-boot:run
-   ```
-
-   It runs at <http://localhost:8081>. Keep `start.bat` running too for the store itself (port 8080).
+2. Start MySQL, then `npm start` (or `start.bat`). The `shopnest` database and its tables are made on
+   the first start, with the 32 sample products. Everything runs at <http://localhost:8080>.
 3. Sign in to the store as the owner, open **Sell an item**, and enter the owner password under
-   **Deleted store products** to connect. Now **Delete item** removes a product for every shopper,
-   and **Restore all** brings them back.
+   **Deleted store products** to connect. Now **Save item to the shop** adds a product for every shopper,
+   **Delete item** removes one for every shopper, and **Restore all** brings back the sample products.
+
+To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the MySQL command line.
 
 The store uses the server only when it is opened at `localhost`. To use it on the live site,
-host the backend online and put its address in `API_URL` at `public/js/core/data.js`
-(and add the site's address to `app.cors-origins`).
+put the server online, put its address in `API_URL` at `public/js/core/data.js`,
+and add the site's address to `CORS_ORIGINS` in `.env`.
+
+Tables made by the old Java backend (`product`, `product_color`, ...) are no longer used.
+Their products were copied into `products` on the first start; you can drop the old tables if you like.

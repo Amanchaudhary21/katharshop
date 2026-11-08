@@ -129,7 +129,7 @@ $("#topBtn").addEventListener("click", () => { window.scrollTo({ top: 0, behavio
 $("#resetBtn").addEventListener("click", () => {
   try { Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k)); } catch (e) { /* blocked */ }
   Object.keys(mem).forEach(k => delete mem[k]);
-  P.filter(isMine).forEach(p => unlist(p.id)); saveMine();
+  if (!API_URL) { P.filter(isMine).forEach(p => unlist(p.id)); saveMine(); } // with the server, added products live in MySQL
   Object.assign(state, { cart: [], wish: [], recent: [], orders: [], reviews: {}, coupon: null, ship: "std", theme: null });
   Object.assign(CO, { name: fullName(USER), email: USER.email || "", street: "", city: "", region: "", zip: "", country: "United States" });
   if (hostTheme) document.documentElement.setAttribute("data-theme", hostTheme); else document.documentElement.removeAttribute("data-theme");
@@ -144,18 +144,32 @@ if (USER) {
   mountAccountMenu();
 }
 
-/* Products the owner deleted on the shop server disappear here too: checked on load,
-   when the tab is shown again, and every 30 seconds. Restored products need a reload. */
-async function syncRemoved() {
-  let ids;
-  try { ids = (await api("/products/deleted")).filter(Number.isFinite); } catch (e) { return; /* server off: keep the last list */ }
-  if (sameIds(ids, REMOVED)) return;
-  const back = REMOVED.some(id => !ids.includes(id));
-  REMOVED = ids; saveSrvRemoved();
-  if (back) { location.reload(); return; }
-  const gone = ids.filter(id => PM.has(id));
-  gone.forEach(id => unlist(id));
-  if (gone.length) rerender();
+/* Products the owner adds or deletes on the shop server (MySQL) show up here too: checked on load,
+   when the tab is shown again, and every 30 seconds. Restored store products need a reload. */
+async function syncShop() {
+  let s;
+  try { s = await api("/products/state"); } catch (e) { return; /* server off: keep the last lists */ }
+  const ids = (s.deleted || []).filter(Number.isFinite), added = (s.added || []).filter(Number.isFinite);
+  let changed = false;
+  if (!sameIds(ids, REMOVED)) {
+    const back = REMOVED.some(id => !ids.includes(id));
+    REMOVED = ids; saveSrvRemoved();
+    if (back) { location.reload(); return; }
+    ids.filter(id => PM.has(id)).forEach(id => { unlist(id); changed = true; });
+  }
+  /* the owner's own products: deleted ones go, new ones are fetched with their photos */
+  P.filter(p => p.mine && !added.includes(p.id)).forEach(p => { unlist(p.id); changed = true; });
+  if (added.some(id => !PM.has(id))) {
+    try {
+      (await api("/products/added")).forEach(j => {
+        if (PM.has(j.id) || !added.includes(j.id)) return;
+        const p = fromServer(j); P.push(p); PM.set(p.id, p); changed = true;
+      });
+    } catch (e) { /* try again next time */ }
+  }
+  if (!changed) return;
+  saveSrvAdded();
+  if (route.name !== "sell") rerender(); // don't wipe a half-filled Sell form
 }
 
 /* go (only after sign-in; otherwise auth.js shows the sign-in screen) */
@@ -164,8 +178,8 @@ if (USER) {
   show(location.hash.startsWith("#/") ? location.hash.slice(1) : "/", false);
   syncSearch();
   if (API_URL) {
-    syncRemoved();
-    setInterval(syncRemoved, 30000);
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) syncRemoved(); });
+    syncShop();
+    setInterval(syncShop, 30000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) syncShop(); });
   }
 }

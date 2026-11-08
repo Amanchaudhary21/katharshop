@@ -1,7 +1,7 @@
 /* ==================================================================
-   sell.js - The "Sell an item" page: add your own product with a photo.
-   Your products are saved in this browser (key bz:mine) and show up
-   in the shop like every other product.
+   sell.js - The "Sell an item" page (owner only): add a product with a photo.
+   With the shop server (API_URL) products are saved in its MySQL database and every
+   shopper sees them; without it they are saved in this browser only (key bz:mine).
    (file 14 of 16; the load order is at the bottom of index.html)
    ================================================================== */
 
@@ -83,7 +83,7 @@ VIEWS.sell = (r = {}) => {
           <div class="field wide"><label for="sl_about">${t("About this item")}</label><textarea id="sl_about" name="about" maxlength="600" placeholder="${t("One point per line")}"></textarea></div>
         </div>
         <button class="btn brand block" type="submit">${t("Save item to the shop")}</button>
-        <p class="muted" style="font-size:.82rem">${t("Saved only in this browser. \"Reset demo data\" in the footer removes it.")}</p>
+        <p class="muted" style="font-size:.82rem">${API_URL ? t("Saved in the shop server's MySQL database. Every shopper sees it.") : t("Saved only in this browser. \"Reset demo data\" in the footer removes it.")}</p>
       </section>
     </form>
     <section class="sec" aria-labelledby="h-mine"><div class="sec-head"><h2 id="h-mine">${t("Your items ({n})", { n: num(mine.length) })}</h2></div>
@@ -109,7 +109,7 @@ CHG.photo = el => {
   });
 };
 
-FORM.sellForm = () => {
+FORM.sellForm = async () => {
   if (!IS_OWNER) return;
   let first = null;
   const bad = (el, errEl, msg) => {
@@ -127,8 +127,9 @@ FORM.sellForm = () => {
   if (first) { first.focus(); toast(t("Please fix the highlighted fields.")); return; }
 
   const val = k => $("#sl_" + k).value.trim();
-  const id = Math.max(1000, ...P.map(p => p.id)) + 1;
   const about = val("about").split("\n").map(s => s.trim()).filter(Boolean);
+  if (API_URL) return saveToServer(val, about);
+  const id = Math.max(1000, ...P.map(p => p.id)) + 1;
   const p = mk(id, val("cat"), "box", val("title"), round2(Number(val("price"))), round2(Number(val("was")) || 0), 0, 0, Number(val("stock")),
     C(["Default", "#8A9BA8"]), about.length ? about : ["Added by you on this device"], [["Seller", USER.first]], "", 1);
   p.photo = sellPhoto; p.mine = true; p.owner = USER.id;
@@ -142,21 +143,48 @@ FORM.sellForm = () => {
   rerender("#sellTitle");
 };
 
-/* With a shop server, store products are deleted there, so every shopper stops seeing them */
-const viaServer = p => API_URL && !p.mine;
+/* With the shop server: the product (and the date it was added) is saved in MySQL, and every
+   shopper's store picks it up within 30 seconds (main.js, syncShop) */
+async function saveToServer(val, about) {
+  if (!ownerToken()) {
+    toast(t("Connect to the shop server first (owner password below), then save the item again."));
+    const pass = $("#ow_pass"); if (pass) pass.focus();
+    return;
+  }
+  const btn = $('#sellForm button[type="submit"]');
+  btn.disabled = true;
+  let j;
+  try {
+    j = await api("/products", { method: "POST", body: JSON.stringify({
+      cat: val("cat"), title: val("title"), price: round2(Number(val("price"))), was: round2(Number(val("was")) || 0),
+      stock: Number(val("stock")), bullets: about, photo: sellPhoto, seller: USER.first || "" }) });
+  } catch (e) {
+    btn.disabled = false;
+    toast(serverError(e)); if (e.status === 401) rerender("#ow_pass");
+    return;
+  }
+  const p = fromServer(j);
+  if (!PM.has(p.id)) { P.push(p); PM.set(p.id, p); }
+  saveSrvAdded();
+  toast(t("{name} is now in the shop for every shopper", { name: `"${p.title}"` }), { href: `#/p/${p.id}`, label: t("View item") });
+  rerender("#sellTitle");
+}
+
+/* With the shop server, products are deleted from its database, so every shopper stops seeing them */
+const viaServer = () => !!API_URL;
 ACT.unsell = async el => {
   const id = Number(el.dataset.id), p = PM.get(id);
   if (!p || !IS_OWNER) return;
-  if (viaServer(p) && !ownerToken()) { go("/sell"); toast(t("Connect to the shop server first (owner password below), then delete the item again.")); return; }
-  if (!confirm(t(viaServer(p) ? "Delete {name} from the shop for every shopper?" : "Delete {name} from the shop?", { name: `"${p.title}"` }) + "\n\n" + t("It will also be removed from carts and wish lists."))) return;
-  if (viaServer(p)) {
-    try { REMOVED = await api(`/products/${id}`, { method: "DELETE" }); } catch (e) { toast(serverError(e)); if (e.status === 401) rerender(); return; }
-    saveSrvRemoved();
+  if (viaServer() && !ownerToken()) { go("/sell"); toast(t("Connect to the shop server first (owner password below), then delete the item again.")); return; }
+  if (!confirm(t(viaServer() ? "Delete {name} from the shop for every shopper?" : "Delete {name} from the shop?", { name: `"${p.title}"` }) + "\n\n" + t("It will also be removed from carts and wish lists."))) return;
+  if (viaServer()) {
+    try { REMOVED = await api(`/products/${id}`, { method: "DELETE" }); saveSrvRemoved(); }
+    catch (e) { if (e.status !== 404) { toast(serverError(e)); if (e.status === 401) rerender(); return; } /* 404: already gone */ }
   }
   unlist(id);
-  if (p.mine) saveMine(); else if (!API_URL) { REMOVED.push(id); saveRemoved(); }
+  if (p.mine) { if (API_URL) saveSrvAdded(); else saveMine(); } else if (!API_URL) { REMOVED.push(id); saveRemoved(); }
   if (route.name === "product") go(p.mine ? "/sell" : "/"); else rerender();
-  toast(t(viaServer(p) ? "{name} was deleted for everyone" : "{name} was deleted", { name: `"${p.title}"` }));
+  toast(t(viaServer() ? "{name} was deleted for everyone" : "{name} was deleted", { name: `"${p.title}"` }));
 };
 ACT.restoreall = async () => {
   if (!IS_OWNER || !confirm(t(API_URL ? "Bring back {n} deleted store products for every shopper?" : "Bring back {n} deleted store products?", { n: num(REMOVED.length) }))) return;
@@ -179,7 +207,7 @@ function serverPanel() {
     ${on ? `<div class="row"><span>${t("<b>Connected</b> to the shop server as the owner.")}</span><button class="btn small" type="button" data-act="srvout">${t("Disconnect")}</button></div>`
       : `<form id="ownerForm" class="stack" novalidate>
         <div class="field"><label for="ow_pass">${t("Owner password for the shop server")}</label><input id="ow_pass" type="password" autocomplete="current-password" aria-describedby="ow_err">
-          <span class="muted" style="font-size:.82rem">${t("Set in backend/local.properties (app.owner-password), or printed when the server starts.")}</span>
+          <span class="muted" style="font-size:.82rem">${t("Set in .env (OWNER_PASSWORD), or printed when the server starts.")}</span>
           <div class="err" id="ow_err" role="alert"></div></div>
         <div class="row"><button class="btn brand" type="submit">${t("Connect")}</button></div>
       </form>`}

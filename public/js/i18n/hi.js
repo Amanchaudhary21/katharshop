@@ -83,7 +83,7 @@ I18N.hi = {
   "Added to your cart": "कार्ट में जोड़ा गया",
   "The shop server needs your owner password again (Sell page).": "दुकान के सर्वर को फिर से आपका मालिक पासवर्ड चाहिए (बेचें पेज)।",
   "The shop server could not do that (error {n}).": "दुकान का सर्वर यह नहीं कर सका (त्रुटि {n})।",
-  "Can't reach the shop server. Is it running? (backend folder: mvnw spring-boot:run)": "दुकान के सर्वर तक नहीं पहुँच सके। क्या वह चल रहा है? (backend फ़ोल्डर: mvnw spring-boot:run)",
+  "Can't reach the shop server. Is it running? (start.bat or npm start)": "दुकान के सर्वर तक नहीं पहुँच सके। क्या वह चल रहा है? (start.bat / npm start)",
 
   // ---------- home and lists ----------
   "Play slideshow": "स्लाइडशो चलाएँ",
@@ -393,6 +393,9 @@ I18N.hi = {
   "One point per line": "हर पंक्ति में एक बात",
   "Save item to the shop": "सामान दुकान में सहेजें",
   "Saved only in this browser. \"Reset demo data\" in the footer removes it.": "केवल इसी ब्राउज़र में सहेजा जाता है। नीचे \"डेमो डेटा रीसेट करें\" इसे हटा देता है।",
+  "Saved in the shop server's MySQL database. Every shopper sees it.": "दुकान सर्वर के MySQL डेटाबेस में सहेजा जाता है। हर ग्राहक इसे देखता है।",
+  "Connect to the shop server first (owner password below), then save the item again.": "पहले दुकान के सर्वर से जुड़ें (नीचे मालिक पासवर्ड), फिर सामान दोबारा सहेजें।",
+  "{name} is now in the shop for every shopper": "{name} अब हर ग्राहक के लिए दुकान में है",
   "Your items ({n})": "आपके सामान ({n})",
   "You have not added any items yet.": "आपने अभी तक कोई सामान नहीं जोड़ा है।",
   "That file is not a picture. Choose a JPG or PNG.": "वह फ़ाइल तस्वीर नहीं है। JPG या PNG चुनें।",
@@ -416,7 +419,7 @@ I18N.hi = {
   "<b>Connected</b> to the shop server as the owner.": "मालिक के रूप में दुकान सर्वर से <b>जुड़े</b> हैं।",
   "Disconnect": "डिस्कनेक्ट करें",
   "Owner password for the shop server": "दुकान सर्वर का मालिक पासवर्ड",
-  "Set in backend/local.properties (app.owner-password), or printed when the server starts.": "backend/local.properties (app.owner-password) में सेट होता है, या सर्वर शुरू होने पर दिखाया जाता है।",
+  "Set in .env (OWNER_PASSWORD), or printed when the server starts.": ".env (OWNER_PASSWORD) में सेट होता है, या सर्वर शुरू होने पर दिखाया जाता है।",
   "Connect": "जुड़ें",
   "Enter the owner password.": "मालिक पासवर्ड लिखें।",
   "Wrong password, or this account is not the owner on the server.": "गलत पासवर्ड, या यह खाता सर्वर पर मालिक नहीं है।",
