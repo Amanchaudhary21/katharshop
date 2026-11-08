@@ -183,9 +183,44 @@ function show(path, focus) {
   const main = $("#main");
   main.innerHTML = view.html;
   if (view.mount) view.mount();
+  $$(".rail, .dept-grid", main).forEach(hscroll);
   markNav();
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   if (focus) main.focus({ preventScroll: true });
+}
+
+/* Rows that scroll sideways (product rails, the department row) get ‹ › buttons at both ends.
+   A button shows only when there is more to see that way; a click moves the row by most of its width. */
+function hscroll(row) {
+  if (row.dataset.hs) return;
+  row.dataset.hs = "1";
+  const box = document.createElement("div");
+  box.className = "hs" + (row.closest(".catnav") ? " hs-small" : "");
+  row.parentNode.insertBefore(box, row);
+  box.appendChild(row);
+  const button = dir => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "hs-btn hs-" + dir;
+    b.tabIndex = -1; // keyboard users move through the row's own links instead
+    b.setAttribute("aria-hidden", "true");
+    b.innerHTML = `<svg viewBox="0 0 24 24"><path d="${dir === "prev" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    b.addEventListener("click", () => {
+      const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollBy({ left: (dir === "prev" ? -1 : 1) * Math.max(160, row.clientWidth * 0.8), behavior: smooth ? "smooth" : "auto" });
+    });
+    box.appendChild(b);
+    return b;
+  };
+  const prev = button("prev"), next = button("next");
+  const update = () => {
+    const end = row.scrollWidth - row.clientWidth - 2;
+    prev.hidden = row.scrollLeft <= 2;
+    next.hidden = row.scrollLeft >= end;
+  };
+  row.addEventListener("scroll", update, { passive: true });
+  if ("ResizeObserver" in window) new ResizeObserver(update).observe(row); else addEventListener("resize", update);
+  update();
 }
 function go(path, opts = {}) {
   if (!opts.replace) { try { history.pushState({ path }, "", "#" + path); } catch (e) { /* not allowed here */ } }

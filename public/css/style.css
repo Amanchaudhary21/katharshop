@@ -615,3 +615,19 @@ html.locked body > :not(#gate):not(svg) { display: none !important; }
 #reloadBtn.spin svg { animation: reload-spin .7s linear infinite; }
 @keyframes reload-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #reloadBtn.spin svg { animation: none; } }
+
+/* ‹ › buttons on rows that scroll sideways (made by hscroll() in js/core/core.js) */
+.hs { position: relative; }
+.hs-btn { position: absolute; top: calc(50% - 4px); transform: translateY(-50%); z-index: 3; width: 42px; height: 42px; padding: 0; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); box-shadow: var(--shadow), 0 4px 14px rgba(0, 0, 0, .25); cursor: pointer; }
+.hs-btn:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.hs-btn[hidden] { display: none; }
+.hs-btn svg { width: 22px; height: 22px; }
+.hs-prev { left: -14px; }
+.hs-next { right: -14px; }
+/* the department row: smaller buttons that sit inside the bar, on a fade */
+.hs-small .hs-btn { width: 30px; height: 30px; top: calc(50% - 1px); box-shadow: 0 0 0 8px var(--surface); }
+.hs-small .hs-btn svg { width: 16px; height: 16px; }
+.hs-small .hs-prev { left: 0; }
+.hs-small .hs-next { right: 0; }
+@media (max-width: 560px) { .hs-prev { left: -6px; } .hs-next { right: -6px; } .hs-btn { width: 36px; height: 36px; } }
