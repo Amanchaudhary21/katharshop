@@ -64,7 +64,7 @@ function showLogin() {
   gate.id = "gate";
   gate.innerHTML = `<div class="g-wrap">
     <aside class="g-hero" aria-hidden="true">
-      <div class="g-logo">${LOGO}<span>shopnest</span></div>
+      <div class="g-logo">${LOGO}<span>katharshop</span></div>
       <h2>${t("Your whole market, one sign-in away.")}</h2>
       <ul>${PERKS}</ul>
       <p class="g-small">${t("Demo store. No real payments.")}</p>
@@ -79,8 +79,8 @@ function showLogin() {
   const e = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
   const last = AUTH.users().filter(u => u.logins && u.logins.length).sort((a, b) => b.logins[0].at.localeCompare(a.logins[0].at))[0];
   const err = msg => { host.querySelector("#g_err").textContent = msg; };
-  host.innerHTML = `<div class="g-card"><div class="g-top">${langPicker("g_lang")}</div><div class="g-logo g-logo-card">${LOGO}<span>shopnest</span></div>
-      <h1 tabindex="-1">${last ? t("Welcome back, {name}", { name: e(last.first) }) : t("Welcome to ShopNest")}</h1>
+  host.innerHTML = `<div class="g-card"><div class="g-top">${langPicker("g_lang")}</div><div class="g-logo g-logo-card">${LOGO}<span>katharshop</span></div>
+      <h1 tabindex="-1">${last ? t("Welcome back, {name}", { name: e(last.first) }) : t("Welcome to Katharshop")}</h1>
       <p class="g-sub">${last ? t("Sign in with Google to pick up where you left off.") : t("Sign in with your Google account to start shopping.")}</p>
       <div class="g-google" id="g_google" aria-live="polite"></div>
       <p class="g-err" id="g_err" role="alert"></p>

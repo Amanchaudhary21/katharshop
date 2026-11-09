@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;

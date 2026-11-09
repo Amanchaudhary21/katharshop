@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * The products and the owner's sign-ins in MySQL, with plain SQL (Spring's JdbcTemplate).
- * The database ("shopnest", DB_NAME in .env) is made the first time the server starts
+ * The database ("shopnest", DB_NAME in .env; it kept the shop's first name) is made the first time the server starts
  * (createDatabaseIfNotExist in application.properties), and the tables by setUp():
  *
  *   products         every product in the shop: the ones the owner adds on the Sell page.

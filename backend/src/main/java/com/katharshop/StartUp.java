@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -33,7 +33,7 @@ public class StartUp {
 		connectDatabase();
 		int port = env.getProperty("local.server.port", Integer.class, 8080);
 		String url = "http://localhost:" + port;
-		System.out.println("ShopNest is running at " + url + "  (close this window to stop)");
+		System.out.println("Katharshop is running at " + url + "  (close this window to stop)");
 		ngrok.open(port);
 		if (openBrowser) openInBrowser(url);
 	}

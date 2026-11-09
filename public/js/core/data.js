@@ -5,7 +5,7 @@
    ================================================================== */
 
 /* ---------- Store settings (edit freely) ---------- */
-const BRAND = "ShopNest";
+const BRAND = "Katharshop";
 
 /* ---------- Money: every price is in Nepali rupees (रू), in every language ----------
    Prices are saved in US dollars (also in the shop server's MySQL) and shown in rupees with

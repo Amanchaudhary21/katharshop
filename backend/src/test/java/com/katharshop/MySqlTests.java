@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.shopnest.TestClient.Answer;
+import com.katharshop.TestClient.Answer;
 
 /**
  * Checks the shop server against the real MySQL server.  Run:  mvnw test

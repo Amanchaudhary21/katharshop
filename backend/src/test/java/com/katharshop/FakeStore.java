@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.util.ArrayList;
 import java.util.HashMap;

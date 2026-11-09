@@ -1,7 +1,7 @@
 {
-  "name": "shopnest-store",
+  "name": "katharshop",
   "version": "1.0.0",
-  "description": "ShopNest - a practice online store in HTML, CSS and JavaScript, with a Java (Spring Boot) + MySQL server in backend/",
+  "description": "Katharshop - a practice online store in HTML, CSS and JavaScript, with a Java (Spring Boot) + MySQL server in backend/",
   "private": true,
   "scripts": {
     "test": "node --test test/*.test.js"

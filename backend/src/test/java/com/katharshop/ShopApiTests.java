@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -21,7 +21,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
-import com.shopnest.TestClient.Answer;
+import com.katharshop.TestClient.Answer;
 
 /**
  * Unit tests for the shop API's rules: the real server, but with a pretend database in memory
@@ -84,7 +84,7 @@ class ShopApiTests {
 			assertTrue(a.error().contains("database is not connected"));
 			Answer page = client.get("/");
 			assertEquals(200, page.status());
-			assertTrue(((String) page.body()).contains("<title>ShopNest</title>"));
+			assertTrue(((String) page.body()).contains("<title>Katharshop</title>"));
 		} finally {
 			startUp.setDatabaseReady(true);
 		}
@@ -126,7 +126,7 @@ class ShopApiTests {
 		List<?> bullets = (List<?>) p.get("bullets");
 		assertEquals(10, bullets.size());
 		assertEquals("Made by hand", bullets.get(0));
-		assertEquals(List.of(List.of("Seller", "ShopNest")), p.get("specs")); // no seller name sent
+		assertEquals(List.of(List.of("Seller", "Katharshop")), p.get("specs")); // no seller name sent
 		assertEquals(1, p.get("age"));
 		assertEquals("box", p.get("art"));
 		assertEquals(List.of(Map.of("name", "Default", "hex", "#8A9BA8")), p.get("colors"));

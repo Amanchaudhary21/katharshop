@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "ShopNest - Demo Store",
-  "short_name": "ShopNest",
+  "name": "Katharshop - Demo Store",
+  "short_name": "Katharshop",
   "description": "A practice online store: search, filters, wish list, cart, coupons, checkout and orders. Demo only, no real payments.",
   "lang": "en",
   "dir": "ltr",

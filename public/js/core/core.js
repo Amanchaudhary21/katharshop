@@ -126,7 +126,7 @@ async function api(path, opts = {}) {
   if (!res.ok) throw Object.assign(new Error("Server error " + res.status), { status: res.status });
   return res.json();
 }
-/* A product the owner added, as the server sends it (toJson in backend/src/main/java/com/shopnest/ShopApi.java) */
+/* A product the owner added, as the server sends it (toJson in backend/src/main/java/com/katharshop/ShopApi.java) */
 const fromServer = j => inShopCurrency(Object.assign(
   mk(j.id, j.cat, j.art || "box", j.title, j.price, j.was, j.rating, j.n, j.stock, j.colors, j.bullets, j.specs, j.kw, j.age),
   { photo: j.photo, mine: true, created: j.created, usd: j.price, usdWas: j.was || 0 })); // the server's prices are in US dollars

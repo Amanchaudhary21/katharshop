@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.net.URI;
 import java.net.http.HttpClient;

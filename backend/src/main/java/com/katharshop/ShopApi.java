@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -163,7 +163,7 @@ public class ShopApi {
 		if (!(stock >= 0 && stock <= 1_000_000 && stock == Math.floor(stock))) throw new ApiError(400, "Enter a stock of 0 or more.");
 		if (!photo.startsWith("data:image/") || photo.length() > MAX_PHOTO) throw new ApiError(400, "Add a photo (JPG or PNG, up to about 1 MB).");
 		if (bullets.stream().anyMatch(x -> x.length() > 600)) throw new ApiError(400, "Each point can have up to 600 letters.");
-		String seller = b.get("seller") instanceof String s && !s.isBlank() ? s.strip() : "ShopNest";
+		String seller = b.get("seller") instanceof String s && !s.isBlank() ? s.strip() : "Katharshop";
 		if (seller.length() > 60) seller = seller.substring(0, 60);
 
 		Product product = new Product(0, (String) b.get("cat"), "box", title, round4(price), round4(was), 0, 0, (int) stock,

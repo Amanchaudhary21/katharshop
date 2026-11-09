@@ -1,4 +1,4 @@
-# ShopNest
+# Katharshop
 
 A practice online store made with plain HTML, CSS and JavaScript (no frameworks).
 Search, filters, cart, coupons, checkout, orders, a wish list, selling your own items
@@ -15,11 +15,11 @@ Every push to the `main` branch publishes the `public/` folder again
 
 ## Install it as an app
 
-ShopNest is a Progressive Web App (PWA): `public/manifest.webmanifest` gives it a name and icons,
+Katharshop is a Progressive Web App (PWA): `public/manifest.webmanifest` gives it a name and icons,
 and `public/sw.js` saves its files so it also opens with no internet.
 
 - **Windows (Edge or Chrome):** open the live site, then click the install icon in the address bar
-  (or menu **Apps > Install ShopNest**). It gets its own window, Start menu entry and taskbar icon.
+  (or menu **Apps > Install Katharshop**). It gets its own window, Start menu entry and taskbar icon.
 - **Android:** Chrome menu **Add to Home screen / Install app**.
 - **iPhone:** Safari **Share > Add to Home Screen**.
 
@@ -31,7 +31,7 @@ so every push to `main` also updates the Store app (no new upload needed for nor
 1. **Partner Center account:** sign up at <https://partner.microsoft.com/dashboard/registration>
    (individual developer account).
 2. **Reserve the name:** Partner Center > Apps and games > **New product > MSIX or PWA app** >
-   reserve a name, e.g. *ShopNest Demo Store*.
+   reserve a name, e.g. *Katharshop Demo Store*.
 3. Open the new app > **Product management > Product identity**. Copy **Package/Identity/Name**,
    **Package/Identity/Publisher** and **Package/Properties/PublisherDisplayName**.
 4. Go to <https://www.pwabuilder.com>, enter `https://amanchaudhary21.github.io/shopnest-store/`,
@@ -95,8 +95,8 @@ the first time (a few minutes, only once).
 │   ├── pom.xml              Maven's build file: Java version and libraries
 │   ├── mvnw.cmd             runs Maven (downloads it the first time)
 │   └── src/
-│       ├── main/java/com/shopnest/
-│       │   ├── ShopNestApplication.java   starts the server
+│       ├── main/java/com/katharshop/
+│       │   ├── KatharshopApplication.java starts the server
 │       │   ├── ShopApi.java    the shop API at /api: owner sign-in, add and delete products
 │       │   ├── ApiFilter.java  before every /api call: the live site may call it, no caching, 503 without MySQL
 │       │   ├── MySqlStore.java MySQL (plain SQL): the tables and every query
@@ -109,7 +109,7 @@ the first time (a few minutes, only once).
 │       │   ├── WebConfig.java  shows the files in public/ at http://localhost:8080
 │       │   └── Json.java       JSON text <-> Java
 │       ├── main/resources/application.properties   Spring Boot settings (port 8080, MySQL address)
-│       └── test/java/com/shopnest/                  the server's tests (see "Tests" below)
+│       └── test/java/com/katharshop/                 the server's tests (see "Tests" below)
 ├── test/
 │   └── store.test.js        the store's JavaScript: prices, cart, search, pages (no browser needed)
 ├── .env.example             copy to .env: MySQL password and owner password (.env is not uploaded)
@@ -150,7 +150,7 @@ checkout forms. It also checks that every text is translated in all three langua
 
 Edit, save with Ctrl+S, then press F5 in the browser.
 
-- `public/index.html`: find `<span>shopnest</span>` and type your own shop name.
+- `public/index.html`: find `<span>katharshop</span>` and type your own shop name.
 - `public/js/core/data.js`: find `const FREE_SHIP_MIN` and change `shopFee(4.99)` to `shopFee(2.99)`.
   Standard delivery now costs रू 450 (2.99 dollars, rounded to whole rupees).
 - `public/js/core/data.js`: change the words of a department in `CATS`. It changes everywhere.
@@ -248,7 +248,8 @@ A deleted product is gone for good.
    **Shop server** to connect. Now **Save item to the shop** adds a product for every shopper,
    and **Delete item** removes one for every shopper.
 
-To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the
+The database kept the shop's first name, `shopnest` (DB_NAME in `.env`), so nothing had to move when the shop
+became Katharshop. To look at the data: `SELECT id, title, price, created FROM shopnest.products;` in MySQL Workbench or the
 MySQL command line. `created` is in UTC (Japan time minus 9 hours).
 
 ## The same products on your phone and every other device (ngrok link)

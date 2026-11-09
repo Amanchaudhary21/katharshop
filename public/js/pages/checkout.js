@@ -235,7 +235,7 @@ function qrPay(id, total, done) {
   const draw = () => {
     loadQR().then(qrcode => {
       const q = qrcode(0, "M");
-      q.addData(`https://example.com/shopnest-demo-pay?app=${CO.pay}&order=${id}&jpy=${toYen(total)}`);
+      q.addData(`https://example.com/katharshop-demo-pay?app=${CO.pay}&order=${id}&jpy=${toYen(total)}`);
       q.make();
       $("#qrCode", dlg).innerHTML = q.createSvgTag({ cellSize: 6, margin: 3, scalable: true });
       $("#qrCode svg", dlg).setAttribute("aria-label", t("QR code to pay {amount} with {app}", { amount: yen(total), app }));
@@ -366,7 +366,7 @@ function payHowTo(o) {
   const box = (title, rows, text) => `<section class="pay-howto" aria-label="${t(title)}"><h2>${t(title)}</h2>${rows}<p class="muted">${text}</p></section>`;
   if (p.kind === "konbini") return box("How to pay at the store", row("Store", p.store) + row("Payment number", p.number) + row("Amount", p.jpy) + row("Pay by", p.due),
     t("Show the payment number at the {store} register or kiosk and pay in cash. Demo: this number does not work in a real store.", { store: esc(p.store) }));
-  if (p.kind === "bank") return box("Bank transfer details", row("Bank", "ShopNest Demo Bank") + row("Branch", t("Online branch (001)")) + row("Account", t("Ordinary 1234567")) + row("Account name", "ショップネスト (デモ)") + row("Transfer name", o.id + " + " + t("your name")) + row("Amount", p.jpy) + row("Pay by", p.due),
+  if (p.kind === "bank") return box("Bank transfer details", row("Bank", "Katharshop Demo Bank") + row("Branch", t("Online branch (001)")) + row("Account", t("Ordinary 1234567")) + row("Account name", "カタルショップ (デモ)") + row("Transfer name", o.id + " + " + t("your name")) + row("Amount", p.jpy) + row("Pay by", p.due),
     t("Demo: this account does not exist. Do not send real money."));
   if (p.kind === "cod") return box("Cash on delivery", row("Pay the driver", p.jpy), t("Have the exact amount ready when the parcel arrives."));
   return "";

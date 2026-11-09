@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -10,11 +10,11 @@
 		<version>4.1.2</version>
 		<relativePath/> <!-- from Maven Central -->
 	</parent>
-	<groupId>com.shopnest</groupId>
-	<artifactId>shopnest</artifactId>
+	<groupId>com.katharshop</groupId>
+	<artifactId>katharshop</artifactId>
 	<version>1.0.0</version>
-	<name>shopnest</name>
-	<description>ShopNest: the shop server (Java + Spring Boot + MySQL)</description>
+	<name>katharshop</name>
+	<description>Katharshop: the shop server (Java + Spring Boot + MySQL)</description>
 	<properties>
 		<!-- works with Java 21 and newer -->
 		<java.version>21</java.version>

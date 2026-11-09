@@ -1,10 +1,10 @@
-package com.shopnest;
+package com.katharshop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * The ShopNest server, in Java (Spring Boot + MySQL).
+ * The Katharshop server, in Java (Spring Boot + MySQL).
  * It shows the store (the public folder) at http://localhost:8080 and runs the shop API at /api
  * (ShopApi), which keeps the products in the MySQL database (MySqlStore).
  *
@@ -12,8 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * go in the .env file there; see .env.example.
  */
 @SpringBootApplication
-public class ShopNestApplication {
+public class KatharshopApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(ShopNestApplication.class, args);
+		SpringApplication.run(KatharshopApplication.class, args);
 	}
 }

@@ -1,4 +1,4 @@
-package com.shopnest;
+package com.katharshop;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

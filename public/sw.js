@@ -1,8 +1,8 @@
-/* sw.js - lets ShopNest work as an installed app, also with no internet.
+/* sw.js - lets Katharshop work as an installed app, also with no internet.
    Pages, CSS and JS: try the internet first (so updates show up), use the saved copy when offline.
    Photos and icons: use the saved copy first (they rarely change).
    Change VERSION when you change this file, so old saved copies are thrown away. */
-const VERSION = "shopnest-v24";
+const VERSION = "katharshop-v25";
 const SHELL = [
   "./", "index.html", "privacy.html", "manifest.webmanifest", "css/style.css",
   "js/core/i18n.js", "js/i18n/ne.js", "js/i18n/hi.js", "js/i18n/ja.js", "js/core/data.js", "js/core/auth.js", "js/core/art.js", "js/core/core.js",
