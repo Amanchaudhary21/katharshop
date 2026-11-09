@@ -7,7 +7,6 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-const round2 = n => Math.round(n * 100) / 100; // (money() and the currencies are in data.js)
 const catName = id => (CATS.find(c => c.id === id) || {}).name || "";
 const disc = p => (p.was ? Math.round((1 - p.price / p.was) * 100) : 0);
 const when = d => fmtDate(d, { weekday: "short", month: "short", day: "numeric" });
@@ -36,16 +35,16 @@ const save = k => store.set(k, state[k]);
 
 /* ---------- cart ---------- */
 const maxQty = p => Math.min(p.stock, 10);
-function cartAdd(id, v = 0, q = 1) {
+function cartAdd(id, q = 1) {
   const p = PM.get(id);
   if (!p || p.stock < 1) return false;
-  const line = state.cart.find(l => l.id === id && l.v === v);
-  if (line) line.q = Math.min(maxQty(p), line.q + q); else state.cart.push({ id, v, q: Math.min(maxQty(p), q) });
+  const line = state.cart.find(l => l.id === id);
+  if (line) line.q = Math.min(maxQty(p), line.q + q); else state.cart.push({ id, q: Math.min(maxQty(p), q) });
   save("cart"); updateCounts();
   return true;
 }
-function cartSet(id, v, q) {
-  const i = state.cart.findIndex(l => l.id === id && l.v === v);
+function cartSet(id, q) {
+  const i = state.cart.findIndex(l => l.id === id);
   if (i < 0) return;
   const p = PM.get(id);
   if (q <= 0) state.cart.splice(i, 1); else state.cart[i].q = Math.min(maxQty(p), q);
@@ -88,7 +87,7 @@ function card(p) {
   return `<article class="card">
     ${badge}
     <button class="heart" type="button" data-act="wish" data-id="${p.id}" aria-pressed="${wished}" aria-label="${wished ? t("Remove from wish list") : t("Add to wish list")}: ${esc(p.title)}"><svg aria-hidden="true"><use href="#i-heart"/></svg></button>
-    ${art(p, 0)}
+    ${art(p)}
     <a class="title" href="#/p/${p.id}">${esc(p.title)}</a>
     <div class="rate">${stars(p.rating)}<b>${num(p.rating, 1)}</b><span>(${num(p.n)})</span></div>
     <div class="price-row"><span class="price">${money(p.price)}</span>${p.was ? `<span class="was">${money(p.was)}</span>` : ""}${d && (out || d < 20) ? `<span class="off">-${d}%</span>` : ""}</div>

@@ -5,7 +5,7 @@
 
 /* ---------- Product page ---------- */
 const FORM = {};
-let pdp = { id: 0, v: 0, q: 1 }, revStars = 0;
+let pdp = { id: 0, q: 1 }, revStars = 0;
 const deliveryRange = fast => (fast ? t("{min} to {max}", { min: when(addDays(1)), max: when(addDays(2)) }) : t("{min} to {max}", { min: when(addDays(3)), max: when(addDays(5)) }));
 const stockHtml = p => (p.stock < 1 ? `<p class="stock-out">${t("Currently unavailable")}</p>` : p.stock <= 5 ? `<p class="stock-low">${t("Only {n} left in stock. Order soon.", { n: num(p.stock) })}</p>` : `<p class="stock-ok">${t("In stock")}</p>`);
 const notFound = () => ({ html: emptyState(t("We could not find that page"), t("The product may have moved, or the link is old."), "#/", t("Back to the shop")) });
@@ -28,22 +28,20 @@ function reviewsHtml(p) {
 VIEWS.product = r => {
   const p = PM.get(r.id);
   if (!p) return notFound();
-  if (pdp.id !== p.id) pdp = { id: p.id, v: 0, q: 1 };
+  if (pdp.id !== p.id) pdp = { id: p.id, q: 1 };
   revStars = 0;
   addRecent(p.id);
-  const out = p.stock < 1, wished = state.wish.includes(p.id), d = disc(p), col = p.colors[pdp.v];
+  const out = p.stock < 1, wished = state.wish.includes(p.id), d = disc(p);
   const related = P.filter(x => x.cat === p.cat && x.id !== p.id).slice(0, 6);
   const recent = state.recent.filter(id => id !== p.id).map(id => PM.get(id)).slice(0, 6);
   return {
     html: `<p class="crumbs"><a href="#/">${t("Home")}</a> / <a href="#/c/${p.cat}">${esc(catName(p.cat))}</a></p>
     <div class="pdp">
-      <div class="gallery"><div id="pdpArt">${art(p, pdp.v, true)}</div>
-        ${p.colors.length > 1 ? `<div class="thumbs">${p.colors.map((c, i) => `<button type="button" data-act="variant" data-v="${i}" aria-pressed="${i === pdp.v}" aria-label="${t("Show colour {name}", { name: esc(c.name) })}">${art(p, i)}</button>`).join("")}</div>` : ""}</div>
+      <div class="gallery">${art(p, true)}</div>
       <div class="pdp-info">
         <h1>${esc(p.title)}</h1>
         <div class="rate">${stars(p.rating)}<b>${num(p.rating, 1)}</b><a href="#reviews" data-act="jump">${t("{n} sample ratings", { n: num(p.n) })}</a></div>
         <div class="pdp-price"><span class="price">${money(p.price)}</span>${p.was ? `<span class="was">${t("List price {amount}", { amount: money(p.was) })}</span><span class="off">${t("You save {amount} ({pct}%)", { amount: money(p.was - p.price), pct: num(d) })}</span>` : ""}</div>
-        ${p.colors.length > 1 ? `<div><p><b>${t("Colour:")}</b> <span id="colorName">${esc(col.name)}</span></p><div class="swatches" style="margin-top:8px">${p.colors.map((c, i) => `<button type="button" style="--c:${c.hex}" data-act="variant" data-v="${i}" aria-pressed="${i === pdp.v}" aria-label="${esc(c.name)}"></button>`).join("")}</div></div>` : ""}
         <div><h2 style="font-size:1.1rem;margin-bottom:8px">${t("About this item")}</h2><ul class="bullets">${p.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul></div>
         <table class="specs"><caption class="sr">${t("Product details")}</caption><tbody>${p.specs.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join("")}<tr><th scope="row">${t("Department")}</th><td>${esc(catName(p.cat))}</td></tr></tbody></table>
       </div>
@@ -65,13 +63,6 @@ VIEWS.product = r => {
     ${recent.length ? `<section class="sec" aria-labelledby="h-rec2"><div class="sec-head"><h2 id="h-rec2">${t("Recently viewed")}</h2></div><div class="rail">${recent.map(card).join("")}</div></section>` : ""}`
   };
 };
-ACT.variant = el => {
-  const p = PM.get(pdp.id), v = Number(el.dataset.v);
-  pdp.v = v;
-  $("#pdpArt").innerHTML = art(p, v, true);
-  $$('[data-act="variant"]').forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.v) === v)));
-  $("#colorName").textContent = p.colors[v].name;
-};
 ACT.qty = el => {
   const p = PM.get(pdp.id);
   pdp.q = Math.max(1, Math.min(maxQty(p), pdp.q + Number(el.dataset.d)));
@@ -79,9 +70,9 @@ ACT.qty = el => {
   $$('[data-act="qty"]').forEach(b => { b.disabled = Number(b.dataset.d) < 0 ? pdp.q <= 1 : pdp.q >= maxQty(p); });
 };
 function addFromPdp() {
-  const p = PM.get(pdp.id), line = state.cart.find(l => l.id === p.id && l.v === pdp.v), before = line ? line.q : 0;
-  if (!cartAdd(p.id, pdp.v, pdp.q)) return false;
-  const after = state.cart.find(l => l.id === p.id && l.v === pdp.v).q;
+  const p = PM.get(pdp.id), line = state.cart.find(l => l.id === p.id), before = line ? line.q : 0;
+  if (!cartAdd(p.id, pdp.q)) return false;
+  const after = state.cart.find(l => l.id === p.id).q;
   if (after === before) toast(t("You already have the most you can order ({n})", { n: num(maxQty(p)) }), { href: "#/cart", label: t("View cart") });
   else { flyToCart($(".gallery")); toast(t("Added {n} to your cart", { n: num(after - before) }), { href: "#/cart", label: t("View cart") }); }
   return true;

@@ -26,17 +26,11 @@ const AUTH = {
   saveUsers(list) { try { localStorage.setItem("bz:users", JSON.stringify(list)); return true; } catch (e) { return false; } },
   /* add a new account, or save changes to one that exists */
   put(user) { const list = AUTH.users().filter(u => u.id !== user.id); return AUTH.saveUsers([...list, user]); },
-  session() {
-    for (const s of [sessionStorage, localStorage]) { try { const v = JSON.parse(s.getItem("bz:session")); if (v) return v; } catch (e) { /* blocked */ } }
-    return null;
-  },
-  start(user, remember) {
-    try { (remember ? localStorage : sessionStorage).setItem("bz:session", JSON.stringify({ id: user.id })); } catch (e) { /* blocked */ }
-  },
-  /* true when "Stay signed in" was ticked (the session is kept after the browser closes) */
-  remembered() { try { return !!localStorage.getItem("bz:session"); } catch (e) { return false; } },
+  /* the signed-in account stays signed in until "Sign out" */
+  session() { try { return JSON.parse(localStorage.getItem("bz:session")) || null; } catch (e) { return null; } },
+  start(user) { try { localStorage.setItem("bz:session", JSON.stringify({ id: user.id })); } catch (e) { /* blocked */ } },
   end() {
-    [sessionStorage, localStorage].forEach(s => { try { s.removeItem("bz:session"); } catch (e) { /* blocked */ } });
+    try { localStorage.removeItem("bz:session"); } catch (e) { /* blocked */ }
     try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) { /* not loaded */ }
   }
 };
@@ -46,22 +40,7 @@ const newId = () => "u" + Date.now().toString(36) + Math.random().toString(36).s
 const USER = (() => { const s = AUTH.session(); return s ? AUTH.users().find(u => u.id === s.id) || null : null; })();
 const IS_OWNER = !!(USER && USER.email && OWNER_EMAILS.includes(USER.email));
 
-/* The password is mixed with a random "salt" and hashed, so it is not stored as plain text */
-async function hashPass(pass, salt) {
-  const text = salt + ":" + pass;
-  if (window.crypto && crypto.subtle) {
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-  }
-  let h = 2166136261; // fallback when the browser has no crypto.subtle
-  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return "f" + (h >>> 0).toString(16);
-}
 const cleanEmail = s => s.trim().toLowerCase();
-const okEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
-/* set a new password on an account (also used by "Change password" on the profile page) */
-const saltPass = async (user, pass) => { user.salt = Math.random().toString(36).slice(2) + Date.now().toString(36); user.hash = await hashPass(pass, user.salt); user.passSet = new Date().toISOString(); };
-const passError = (pass, again) => pass.length < 6 ? t("Use 6 or more characters for your password.") : pass !== again ? t("Those passwords didn't match. Try again.") : "";
 
 /* Google sends back a signed token. We read the name, email and photo from it.
    (A real store would also check the token on its own server.) */
@@ -112,7 +91,7 @@ function showLogin() {
   /* remember the last 5 sign-ins (when and how) for the profile page */
   const enter = (user, via) => {
     user.logins = [{ at: new Date().toISOString(), via }, ...(user.logins || [])].slice(0, 5);
-    AUTH.put(user); AUTH.start(user, true); location.reload();
+    AUTH.put(user); AUTH.start(user); location.reload();
   };
 
   /* Google's own button. It needs your Client ID (top of this file) and a http:// address. */

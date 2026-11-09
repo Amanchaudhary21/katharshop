@@ -74,7 +74,7 @@ or double-click `start.bat` (it runs `npm install` itself the first time). The s
 │       │   ├── i18n.js      languages: the language menu and t("English text")
 │       │   ├── data.js      departments, coupons, delivery prices, where products come from
 │       │   ├── auth.js      sign-in screen: Google only
-│       │   ├── art.js       draws the product pictures (or shows your photo)
+│       │   ├── art.js       shows the product photos
 │       │   └── core.js      helpers, saved cart and wish list, price maths, page switcher
 │       ├── i18n/            one translation file per language: ne.js, hi.js, ja.js
 │       ├── pages/           one file per page
@@ -89,11 +89,13 @@ or double-click `start.bat` (it runs `npm install` itself the first time). The s
 │   └── deploy.yml           publishes public/ to GitHub Pages on every push
 ├── server.js                the server (Node.js + Express): shows public/ and runs the API at /api
 ├── server/
-│   ├── api.js               the shop API: owner sign-in, add, delete and restore products
+│   ├── api.js               the shop API: owner sign-in, add and delete products
 │   ├── db.js                MySQL (mysql2): makes the database and its tables
 │   └── catalog.js           reads the department list from public/js/core/data.js
-├── test/
-│   └── api.test.js          `npm test`: checks the API (uses a throwaway shopnest_test database)
+├── test/                    `npm test` runs all of these (see "Tests" below)
+│   ├── store.test.js        the store's JavaScript: prices, cart, search, pages (no browser needed)
+│   ├── api-unit.test.js     the API's rules, with a pretend database (no MySQL needed)
+│   └── api.test.js          the API against real MySQL (uses a throwaway shopnest_test database)
 ├── .env.example             copy to .env: MySQL password and owner password (.env is not uploaded)
 ├── start.bat                double-click to start the server and open the store
 ├── package.json             `npm start` runs server.js, `npm test` runs the tests
@@ -102,6 +104,20 @@ or double-click `start.bat` (it runs `npm install` itself the first time). The s
 
 The JS files must load in the order listed at the bottom of `public/index.html`.
 Each file uses things made by the files above it.
+
+## Tests
+
+```bash
+npm test
+```
+
+- `test/store.test.js` loads the store's own JavaScript in that same order into a pretend browser and checks
+  prices in every currency, the cart and totals, search and filters, the pages, sign-in and the checkout forms.
+  It also checks that every text is translated in all three languages.
+- `test/api-unit.test.js` checks the API's rules (owner sign-in, adding and deleting, bad input) with a
+  pretend database, so it needs no MySQL.
+- `test/api.test.js` checks the API against your real MySQL server, using its own `shopnest_test` database
+  (made and dropped by the test, never your real `shopnest`). It fails if MySQL is not running.
 
 ## Easy things to try
 
@@ -124,7 +140,7 @@ The choice is remembered in this browser. Nepali is the default.
 
 The text is written in English in the code, wrapped like `t("Add to cart")`. Each file in
 `public/js/i18n/` maps the English text to its language, so to change a translation, edit it there.
-When you add new text, add it to all three files too; anything missing simply shows in English.
+When you add new text, add it to all three files too; anything missing shows in English, and `npm test` lists it.
 Text in `index.html` marked with `data-t` is translated the same way.
 Products you add with "Sell an item" keep the words you typed.
 
@@ -232,5 +248,5 @@ While the laptop is off, the live site shows the products it saw last, and addin
 the laptop runs `start.bat` again. The store only checks for changes while it is on screen, because the
 free ngrok plan has a monthly limit. After 10 wrong owner passwords, sign-in from that address waits 15 minutes.
 
-Tables made by the old Java backend (`product`, `product_color`, ...) are no longer used.
-Their products were copied into `products` on the first start; you can drop the old tables if you like.
+Tables made by older versions (`product`, `product_color`, ... from the Java backend, and `shop_meta`)
+are no longer used. You can drop them if you like.

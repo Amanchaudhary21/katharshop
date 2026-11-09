@@ -72,4 +72,4 @@ async function close() {
   pool = null;
 }
 
-module.exports = { connect, close, db, insertProducts, config };
+module.exports = { connect, close, db, insertProducts };

@@ -55,7 +55,7 @@ function openSuggest() {
   const cats = cat ? [] : CATS.filter(c => toks.every(w => c.name.toLowerCase().includes(w))).slice(0, 2);
   const icon = `<span class="thumb" aria-hidden="true" style="display:grid;place-items:center;background:var(--surface-2)"><svg style="width:20px;height:20px;fill:none"><use href="#i-search"/></svg></span>`;
   sug.items = [
-    ...prods.map(p => ({ href: `#/p/${p.id}`, html: `<span class="thumb" aria-hidden="true">${art(p, 0)}</span><span>${hl(p.title, toks)}</span><small>${money(p.price)}</small>` })),
+    ...prods.map(p => ({ href: `#/p/${p.id}`, html: `<span class="thumb" aria-hidden="true">${art(p)}</span><span>${hl(p.title, toks)}</span><small>${money(p.price)}</small>` })),
     ...cats.map(c => ({ href: `#/c/${c.id}`, html: `${icon}<span>${hl(c.name, toks)}</span><small>${t("Department")}</small>` })),
     { href: `#/s/${encodeURIComponent(q)}${cat ? "?cat=" + cat : ""}`, html: `${icon}<span>${t("Search all for {q}", { q: `<b>"${esc(q)}"</b>` })}</span>` }
   ];
@@ -99,9 +99,9 @@ ACT.wish = el => {
   toast(on ? t("Saved to your wish list") : t("Removed from your wish list"), on ? { href: "#/wishlist", label: t("View") } : null);
 };
 ACT.add = el => {
-  const id = Number(el.dataset.id), p = PM.get(id), line = state.cart.find(l => l.id === id && l.v === 0), before = line ? line.q : 0;
-  if (!cartAdd(id, 0, 1)) { toast(t("Sorry, that item is unavailable")); return; }
-  const after = state.cart.find(l => l.id === id && l.v === 0).q;
+  const id = Number(el.dataset.id), p = PM.get(id), line = state.cart.find(l => l.id === id), before = line ? line.q : 0;
+  if (!cartAdd(id, 1)) { toast(t("Sorry, that item is unavailable")); return; }
+  const after = state.cart.find(l => l.id === id).q;
   if (after !== before) flyToCart(el);
   toast(after === before ? t("You already have the most you can order ({n})", { n: num(maxQty(p)) }) : t("Added to your cart"), { href: "#/cart", label: t("View cart") });
 };

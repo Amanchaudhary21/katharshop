@@ -20,7 +20,7 @@ function heroHtml(slides) {
   return `<section class="hero" aria-roledescription="carousel" aria-label="${t("Featured offers")}">
     ${slides.map((s, i) => `<div class="slide${i === 0 ? " on" : ""}" style="--s-bg:${s.bg};--s-ink:${s.ink}" role="group" aria-roledescription="slide" aria-label="${t("{n} of {total}", { n: num(i + 1), total: num(slides.length) })}">
       <div><h2>${esc(s.h)}</h2><p>${esc(s.t)}</p><a class="btn" href="${s.to}">${esc(s.cta)}</a></div>
-      ${art(s.pic, 0)}
+      ${art(s.pic)}
     </div>`).join("")}
     ${slides.length > 1 ? `<div class="hero-ctl"><button type="button" class="hero-pause" data-act="slidepause" aria-pressed="false" aria-label="${t("Pause slideshow")}"></button>${slides.map((s, i) => `<button type="button" data-act="slide" data-i="${i}" aria-label="${t("Show slide {n}", { n: num(i + 1) })}" aria-current="${i === 0}"></button>`).join("")}</div>` : ""}
   </section>`;
@@ -36,7 +36,7 @@ function deptCard(c) {
   /* short name: English keeps the first words, the other languages put the thing itself last */
   const short = s => { const w = s.split(/[,(、，]| with | and /)[0].trim().split(" "); return LANG === "en" ? w.slice(0, 3).join(" ") : w.slice(-2).join(" "); };
   return `<section class="dept" aria-label="${esc(c.name)}"><h3>${esc(c.name)}</h3><p class="muted" style="font-size:.88rem">${esc(c.blurb)}</p>
-    <div class="minis">${items.map(p => `<a href="#/p/${p.id}">${art(p, 0)}<span>${esc(short(p.title))}</span></a>`).join("")}</div>
+    <div class="minis">${items.map(p => `<a href="#/p/${p.id}">${art(p)}<span>${esc(short(p.title))}</span></a>`).join("")}</div>
     <a href="#/c/${c.id}">${t("See all {name}", { name: esc(c.name) })}</a></section>`;
 }
 VIEWS.home = () => {

@@ -32,12 +32,11 @@ function summaryInner(mode) {
 }
 
 function cartLine(l) {
-  const p = l.p, col = p.colors[l.v % p.colors.length], key = `data-id="${p.id}" data-v="${l.v}"`;
+  const p = l.p, key = `data-id="${p.id}"`;
   return `<div class="line">
-    <a class="line-art" href="#/p/${p.id}" tabindex="-1" aria-hidden="true">${art(p, l.v)}</a>
+    <a class="line-art" href="#/p/${p.id}" tabindex="-1" aria-hidden="true">${art(p)}</a>
     <div class="line-info">
       <a href="#/p/${p.id}">${esc(p.title)}</a>
-      ${p.colors.length > 1 ? `<span class="muted">${t("Colour:")} ${esc(col.name)}</span>` : ""}
       ${p.stock <= 5 ? `<span class="stock-low">${t("Only {n} left in stock", { n: num(p.stock) })}</span>` : `<span class="stock-ok">${t("In stock")}</span>`}
       <div class="row">
         <div class="qty"><button type="button" data-act="cqty" ${key} data-d="-1" aria-label="${t("Decrease quantity of {name}", { name: esc(p.title) })}" ${l.q <= 1 ? "disabled" : ""}>-</button><output aria-label="${t("Quantity")}">${num(l.q)}</output><button type="button" data-act="cqty" ${key} data-d="1" aria-label="${t("Increase quantity of {name}", { name: esc(p.title) })}" ${l.q >= maxQty(p) ? "disabled" : ""}>+</button></div>
@@ -62,22 +61,22 @@ VIEWS.cart = () => {
 };
 
 ACT.cqty = el => {
-  const id = Number(el.dataset.id), v = Number(el.dataset.v), d = Number(el.dataset.d);
-  const line = state.cart.find(l => l.id === id && l.v === v);
+  const id = Number(el.dataset.id), d = Number(el.dataset.d);
+  const line = state.cart.find(l => l.id === id);
   if (!line) return;
-  cartSet(id, v, line.q + d);
+  cartSet(id, line.q + d);
   rerender();
-  const base = `[data-act="cqty"][data-id="${id}"][data-v="${v}"]`;
+  const base = `[data-act="cqty"][data-id="${id}"]`;
   focusFirst(`${base}[data-d="${d}"]`, `${base}[data-d="${-d}"]`, "#cartTitle");
 };
 ACT.cremove = el => {
-  cartSet(Number(el.dataset.id), Number(el.dataset.v), 0);
+  cartSet(Number(el.dataset.id), 0);
   rerender(); focusFirst("#cartTitle", "#main");
   toast(t("Removed from your cart"));
 };
 ACT.csave = el => {
   const id = Number(el.dataset.id);
-  cartSet(id, Number(el.dataset.v), 0);
+  cartSet(id, 0);
   if (!state.wish.includes(id)) toggleWish(id);
   rerender(); focusFirst("#cartTitle", "#main");
   toast(t("Moved to your wish list"), { href: "#/wishlist", label: t("View") });
@@ -110,7 +109,7 @@ VIEWS.wishlist = () => {
 };
 ACT.wishall = () => {
   let n = 0;
-  state.wish.map(id => PM.get(id)).filter(p => p && p.stock > 0).forEach(p => { if (cartAdd(p.id, 0, 1)) n++; });
+  state.wish.map(id => PM.get(id)).filter(p => p && p.stock > 0).forEach(p => { if (cartAdd(p.id, 1)) n++; });
   toast(n ? t(n === 1 ? "Added {n} item to your cart" : "Added {n} items to your cart", { n: num(n) }) : t("Nothing in stock to add"), n ? { href: "#/cart", label: t("View cart") } : null);
 };
 ACT.wishclear = () => {

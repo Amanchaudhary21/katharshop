@@ -34,8 +34,8 @@ function speedOpts() {
     .map(([k, name, eta, price]) => `<label class="opt"><input type="radio" id="speed-${k}" name="speed" value="${k}" data-chg="ship" ${state.ship === k ? "checked" : ""}><span class="grow"><b>${name}</b><br><span class="muted">${t("Arrives {when}", { when: eta })}</span></span><b class="mono">${price}</b></label>`).join("");
 }
 function miniLine(l) {
-  const p = l.p, col = p.colors[l.v % p.colors.length];
-  return `<div class="line">${art(p, l.v)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${p.colors.length > 1 ? esc(col.name) + " · " : ""}${t("Qty {n}", { n: num(l.q) })}</span></div><div class="line-total">${money(p.price * l.q)}</div></div>`;
+  const p = l.p;
+  return `<div class="line">${art(p)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${t("Qty {n}", { n: num(l.q) })}</span></div><div class="line-total">${money(p.price * l.q)}</div></div>`;
 }
 
 VIEWS.checkout = () => {
@@ -317,7 +317,7 @@ FORM.coForm = () => {
 function placeOrder(id, tot, payLabel, payInfo) {
   state.orders.unshift({
     id, date: new Date().toISOString(),
-    items: tot.items.map(l => ({ id: l.id, v: l.v, q: l.q, price: l.p.price })),
+    items: tot.items.map(l => ({ id: l.id, q: l.q, price: l.p.price })),
     cur: CUR.code, // the amounts below are in this currency (orders made before currencies have none: dollars)
     sub: tot.sub, off: tot.off, ship: tot.ship, total: tot.total, coupon: state.coupon || "",
     speed: state.ship, eta: deliveryRange(state.ship === "exp"), pay: payLabel, payInfo: payInfo || null,
@@ -375,8 +375,7 @@ function payHowTo(o) {
 function orderLine(it, again, cur) {
   const p = PM.get(it.id);
   if (!p) return "";
-  const col = p.colors[it.v % p.colors.length];
-  return `<div class="line">${art(p, it.v)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${p.colors.length > 1 ? esc(col.name) + " · " : ""}${t("Qty {n}", { n: num(it.q) })}</span>${again ? `<div><button class="btn small" type="button" data-act="again" data-id="${p.id}" data-v="${it.v}" ${p.stock < 1 ? "disabled" : ""}>${p.stock < 1 ? t("Unavailable") : t("Buy it again")}</button></div>` : ""}</div><div class="line-total">${money(it.price * it.q, cur)}</div></div>`;
+  return `<div class="line">${art(p)}<div class="line-info"><a href="#/p/${p.id}">${esc(p.title)}</a><span class="muted">${t("Qty {n}", { n: num(it.q) })}</span>${again ? `<div><button class="btn small" type="button" data-act="again" data-id="${p.id}" ${p.stock < 1 ? "disabled" : ""}>${p.stock < 1 ? t("Unavailable") : t("Buy it again")}</button></div>` : ""}</div><div class="line-total">${money(it.price * it.q, cur)}</div></div>`;
 }
 VIEWS.orders = () => {
   if (!state.orders.length) return { html: `<h1 class="sr" id="ordTitle" tabindex="-1">${t("Your orders")}</h1>${emptyState(t("No orders yet"), t("Orders you place in this demo show up here."), "#/", t("Start shopping"))}` };
@@ -389,7 +388,7 @@ VIEWS.orders = () => {
 };
 ACT.again = el => {
   const id = Number(el.dataset.id), p = PM.get(id);
-  if (cartAdd(id, Number(el.dataset.v), 1)) { flyToCart(el); toast(t("Added to your cart"), { href: "#/cart", label: t("View cart") }); }
+  if (cartAdd(id, 1)) { flyToCart(el); toast(t("Added to your cart"), { href: "#/cart", label: t("View cart") }); }
   else toast(t("{name} is unavailable", { name: p ? p.title : t("That item") }));
 };
 ACT.clearorders = () => {
