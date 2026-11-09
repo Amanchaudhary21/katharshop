@@ -8,7 +8,7 @@ with a photo, and sign-in with Google. In four languages: नेपाली (de
 
 ## Live site
 
-**https://amanchaudhary21.github.io/shopnest-store/**
+**https://amanchaudhary21.github.io/katharshop/**
 
 Every push to the `main` branch publishes the `public/` folder again
 (see `.github/workflows/deploy.yml`). It takes about a minute.
@@ -34,12 +34,12 @@ so every push to `main` also updates the Store app (no new upload needed for nor
    reserve a name, e.g. *Katharshop Demo Store*.
 3. Open the new app > **Product management > Product identity**. Copy **Package/Identity/Name**,
    **Package/Identity/Publisher** and **Package/Properties/PublisherDisplayName**.
-4. Go to <https://www.pwabuilder.com>, enter `https://amanchaudhary21.github.io/shopnest-store/`,
+4. Go to <https://www.pwabuilder.com>, enter `https://amanchaudhary21.github.io/katharshop/`,
    click **Package For Stores > Windows > Generate Package**, and paste the three values from step 3.
 5. Unzip the download. Back in Partner Center, **Start your submission**:
    - **Packages:** upload the `.msixbundle` (and the `.classic.appxbundle` if one was made)
    - **Properties:** category *Shopping*; privacy policy URL
-     `https://amanchaudhary21.github.io/shopnest-store/privacy.html`
+     `https://amanchaudhary21.github.io/katharshop/privacy.html`
    - **Age ratings:** answer the questionnaire
    - **Store listings:** description and at least one screenshot
      (say it is a demo store with no real purchases)
@@ -68,7 +68,7 @@ the first time (a few minutes, only once).
 ## Project structure
 
 ```
-15shopnest-store/
+katharshop/
 ├── public/                  everything the browser loads
 │   ├── index.html           the page: header, menu, footer; loads the CSS and JS
 │   ├── css/

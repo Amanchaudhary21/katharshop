@@ -1,5 +1,5 @@
 # Publishes the public/ folder to GitHub Pages every time main is pushed.
-# Live site: https://amanchaudhary21.github.io/shopnest-store/
+# Live site: https://amanchaudhary21.github.io/katharshop/
 name: Deploy to GitHub Pages
 
 on:
