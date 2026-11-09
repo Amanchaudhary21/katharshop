@@ -52,7 +52,7 @@ function cartSet(id, q) {
 }
 function totals() {
   const items = state.cart.map(l => ({ ...l, p: PM.get(l.id) })).filter(l => l.p);
-  // all in the shopper's currency, rounded like it is shown (cents, or whole rupees and yen)
+  // all in rupees, rounded like they are shown (whole rupees)
   const sub = roundCur(items.reduce((s, l) => s + l.p.price * l.q, 0));
   const count = items.reduce((s, l) => s + l.q, 0);
   const cp = state.coupon && COUPONS[state.coupon];
@@ -81,6 +81,11 @@ function addRecent(id) {
 const STAR_ROW = `<svg viewBox="0 0 108 20" aria-hidden="true">${[0, 22, 44, 66, 88].map(x => `<use href="#i-star" x="${x}" width="20" height="20"/>`).join("")}</svg>`;
 const stars = r => `<span class="stars" role="img" aria-label="${t("{n} out of 5 stars", { n: num(r) })}"><span class="base">${STAR_ROW}</span><span class="fill" style="width:${(r / 5 * 100).toFixed(1)}%">${STAR_ROW}</span></span>`;
 
+/* How many are left, so shoppers can see it: "12 left in stock", or from 5 down "Only 3 left in stock" */
+const stockLeft = p => (p.stock <= 5
+  ? `<span class="stock-low">${t("Only {n} left in stock", { n: num(p.stock) })}</span>`
+  : `<span class="stock-ok">${t("{n} left in stock", { n: num(p.stock) })}</span>`);
+
 function card(p) {
   const wished = state.wish.includes(p.id), d = disc(p), out = p.stock < 1;
   const badge = out ? "" : d >= 20 ? `<span class="badge sale">-${d}%</span>` : p.age <= 15 ? `<span class="badge">${t("New")}</span>` : p.n >= 4000 ? `<span class="badge">${t("Best seller")}</span>` : "";
@@ -91,6 +96,7 @@ function card(p) {
     <a class="title" href="#/p/${p.id}">${esc(p.title)}</a>
     <div class="rate">${stars(p.rating)}<b>${num(p.rating, 1)}</b><span>(${num(p.n)})</span></div>
     <div class="price-row"><span class="price">${money(p.price)}</span>${p.was ? `<span class="was">${money(p.was)}</span>` : ""}${d && (out || d < 20) ? `<span class="off">-${d}%</span>` : ""}</div>
+    ${out ? "" : stockLeft(p)}
     ${out ? `<span class="stock-out">${t("Currently unavailable")}</span>` : p.price >= FREE_SHIP_MIN ? `<span class="ship">${t("Free delivery")}</span>` : `<span class="muted" style="font-size:.8rem">${t("Free delivery over {amount}", { amount: money(FREE_SHIP_MIN) })}</span>`}
     <button class="btn brand small" type="button" data-act="add" data-id="${p.id}" ${out ? "disabled" : ""}>${out ? t("Unavailable") : t("Add to cart")}</button>
     ${IS_OWNER ? `<button class="btn danger small" type="button" data-act="unsell" data-id="${p.id}" aria-label="${t("Delete {name}", { name: esc(p.title) })}">${t("Delete item")}</button>` : ""}

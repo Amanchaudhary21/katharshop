@@ -50,6 +50,8 @@ function openStore({ lang = "en", email = "shopper@example.com", server = true, 
 /* a product as the shop server keeps it: prices in US dollars */
 const saved = (id, usd, more = {}) => ({ id, cat: "home", art: "box", title: "Item " + id, usd, usdWas: 0, price: usd, was: 0, rating: 0, n: 0,
   stock: 50, colors: [{ name: "Default", hex: "#8A9BA8" }], bullets: ["Nice"], specs: [["Seller", "Aman"]], kw: "", age: 1, photo: PHOTO, mine: true, ...more });
+/* the dollars the Sell page saves for a price typed in rupees: saved(1001, rs(1000)) costs रू 1,000 */
+const rs = rupees => Math.round(rupees / 150.58 * 10000) / 10000;
 const withProducts = (list, opts = {}) => openStore({ ...opts, saved: { "bz:srvAdded": list, ...(opts.saved || {}) } });
 
 /* ---------- languages ---------- */
@@ -94,55 +96,51 @@ test("numbers and dates in Nepali use Devanagari digits and lakh grouping", () =
 });
 
 /* ---------- money ---------- */
-test("money() shows each language's currency", () => {
-  assert.equal(openStore().run("money(12.5)"), "$12.50");
-  assert.equal(openStore().run("money(-3)"), "-$3.00");
-  assert.equal(openStore().run('money(1999, "JPY")'), "￥1,999");
+test("prices are in Nepali rupees in every language, with the language's own digits", () => {
   assert.equal(openStore({ lang: "ne" }).run("money(1882)"), "रू १,८८२");
-  assert.equal(openStore({ lang: "hi" }).run("money(1176)"), "₹1,176");
-  assert.equal(openStore({ lang: "ja" }).run("money(1979)"), "￥1,979");
+  assert.equal(openStore({ lang: "en" }).run("money(1882)"), "रू 1,882");
+  assert.equal(openStore({ lang: "hi" }).run("money(1882)"), "रू 1,882");
+  assert.equal(openStore({ lang: "ja" }).run("money(1882)"), "रू 1,882");
+  assert.equal(openStore().run("money(-300)"), "-रू 300");
+  for (const lang of ["ne", "en", "hi", "ja"]) assert.equal(openStore({ lang }).run("CUR.code"), "NPR", lang);
 });
 
-test("dollar prices convert to each currency, rounded the way it is shown", () => {
-  assert.equal(openStore().run("toCur(12.5)"), 12.5);
-  assert.equal(openStore({ lang: "ne" }).run("toCur(12.5)"), 1882); // 12.5 x 150.58 = 1882.25
-  assert.equal(openStore({ lang: "hi" }).run("toCur(12.5)"), 1176); // 12.5 x 94.11 = 1176.375
-  assert.equal(openStore({ lang: "ja" }).run("toCur(12.5)"), 1979); // 12.5 x 158.32 = 1979
+test("an amount in another currency shows in that currency (old orders, yen payments)", () => {
+  assert.equal(openStore().run('money(1999, "JPY")'), "￥1,999");
+  assert.equal(openStore().run('money(12.5, "USD")'), "$12.50");
 });
 
-test("a price typed on the Sell page in any currency comes back exactly as typed", () => {
-  for (const lang of ["ne", "hi", "ja"]) {
+test("dollar prices become whole rupees in every language", () => {
+  for (const lang of ["ne", "en", "hi", "ja"]) assert.equal(openStore({ lang }).run("toCur(12.5)"), 1882, lang); // 12.5 x 150.58 = 1882.25
+});
+
+test("a price typed in rupees on the Sell page comes back exactly as typed", () => {
+  for (const lang of ["ne", "en"]) {
     const s = openStore({ lang }), toUsd = s.run("toUsd"), toCur = s.run("toCur");
-    for (let amount = 1; amount <= 50000; amount++) if (toCur(toUsd(amount)) !== amount) assert.fail(`${lang}: ${amount} came back as ${toCur(toUsd(amount))}`);
+    for (let amount = 1; amount <= 100000; amount++) if (toCur(toUsd(amount)) !== amount) assert.fail(`${lang}: रू ${amount} came back as ${toCur(toUsd(amount))}`);
   }
-  const en = openStore(), toUsd = en.run("toUsd"), toCur = en.run("toCur");
-  for (let cents = 1; cents <= 100000; cents++) if (toCur(toUsd(cents / 100)) !== cents / 100) assert.fail(`$${cents / 100}`);
 });
 
-test("an old order's amount shows in the shopper's currency", () => {
-  assert.equal(openStore({ lang: "ja" }).run('fromCur(10, "USD")'), 1583);
-  assert.equal(openStore().run('fromCur(1583, "JPY")'), 10);
-  assert.equal(openStore().run('fromCur(7, "XYZ")'), 7); // unknown currency: treated as dollars
+test("an old order paid in dollars or yen counts in rupees", () => {
+  assert.equal(openStore({ lang: "ja" }).run('fromCur(10, "USD")'), 1506); // 10 x 150.58 = 1505.8
+  assert.equal(openStore().run('fromCur(1583, "JPY")'), 1506);              // ￥1,583 is about $10
+  assert.equal(openStore().run('fromCur(1506, "NPR")'), 1506);
+  assert.equal(openStore().run('fromCur(7, "XYZ")'), 1054); // unknown currency: treated as dollars
 });
 
-test("delivery fees and the free-delivery limit are round numbers in each currency", () => {
-  const fees = lang => plain(openStore({ lang }).run("[FREE_SHIP_MIN, SHIP_STD, SHIP_EXP]"));
-  assert.deepEqual(fees("en"), [35, 4.99, 12.99]);
-  assert.deepEqual(fees("ne"), [5300, 750, 2000]);
-  assert.deepEqual(fees("hi"), [3300, 470, 1200]);
-  assert.deepEqual(fees("ja"), [5500, 790, 2100]);
+test("delivery fees and the free-delivery limit are round rupees in every language", () => {
+  for (const lang of ["ne", "en", "hi", "ja"]) assert.deepEqual(plain(openStore({ lang }).run("[FREE_SHIP_MIN, SHIP_STD, SHIP_EXP]")), [5300, 750, 2000], lang);
 });
 
-test("the price filter's bands are round numbers in the shopper's currency", () => {
-  assert.deepEqual(plain(openStore().run("PRICE_BANDS.map(b => b[0])")), ["", "0-25", "25-50", "50-100", "100-250", "250-"]);
-  assert.equal(openStore().run("PRICE_BANDS[1][1]"), "Under $25");
-  assert.deepEqual(plain(openStore({ lang: "ja" }).run("PRICE_BANDS.map(b => b[0])")), ["", "0-4000", "4000-7900", "7900-16000", "16000-40000", "40000-"]);
+test("the price filter's bands are round rupees", () => {
+  for (const lang of ["ne", "en", "ja"]) assert.deepEqual(plain(openStore({ lang }).run("PRICE_BANDS.map(b => b[0])")), ["", "0-3800", "3800-7500", "7500-15000", "15000-38000", "38000-"], lang);
+  assert.equal(openStore().run("PRICE_BANDS[1][1]"), "Under रू 3,800");
 });
 
 /* ---------- products ---------- */
 test("saved products load at start: no photo = skipped, prices from before currencies were dollars", () => {
   const s = withProducts([saved(1001, 10), { ...saved(1002, 0), usd: undefined, price: 20 }, { ...saved(1003, 5), photo: "" }], { lang: "ja" });
-  assert.deepEqual(plain(s.run("P.map(p => [p.id, p.usd, p.price])")), [[1001, 10, 1583], [1002, 20, 3166]]);
+  assert.deepEqual(plain(s.run("P.map(p => [p.id, p.usd, p.price])")), [[1001, 10, 1506], [1002, 20, 3012]]);
   assert.equal(s.run("PM.has(1003)"), false);
 });
 
@@ -152,13 +150,13 @@ test("opened from a double-clicked index.html, the store uses this browser's own
   assert.deepEqual(plain(s.run("P.map(p => p.id)")), [1001]);
 });
 
-test("a product from the shop server gets its price in the shopper's currency and keeps the dollars", () => {
+test("a product from the shop server gets its price in rupees and keeps the dollars", () => {
   const p = plain(openStore({ lang: "ja" }).run("fromServer")({
-    id: 1001, cat: "home", art: "box", title: "Clay vase", price: 12.6263, was: 0, rating: 0, n: 0, stock: 4,
+    id: 1001, cat: "home", art: "box", title: "Clay vase", price: 13.2753, was: 0, rating: 0, n: 0, stock: 4, // रू 1,999 typed on the Sell page
     colors: [{ name: "Default", hex: "#8A9BA8" }], bullets: ["Made by hand"], specs: [["Seller", "Aman"]], kw: "", age: 1, photo: PHOTO, created: "2026-11-09T00:00:00.000Z"
   }));
   assert.equal(p.price, 1999);
-  assert.equal(p.usd, 12.6263);
+  assert.equal(p.usd, 13.2753);
   assert.equal(p.mine, true);
   assert.equal(p.photo, PHOTO);
 });
@@ -188,6 +186,18 @@ test("product cards: sale badge from 20% off, New for new items, disabled when o
   assert.match(s.run("card(PM.get(1003))"), /disabled>Unavailable</);
 });
 
+test("shoppers see how many are left: the number, and 'Only' from 5 down", () => {
+  const s = withProducts([saved(1001, 10, { stock: 12 }), saved(1002, 10, { stock: 3 }), saved(1003, 10, { stock: 0 })]);
+  assert.match(s.run("card(PM.get(1001))"), /class="stock-ok">12 left in stock</);
+  assert.match(s.run("card(PM.get(1002))"), /class="stock-low">Only 3 left in stock</);
+  assert.doesNotMatch(s.run("card(PM.get(1003))"), /left in stock/); // out of stock: "Currently unavailable" instead
+  assert.match(s.run("VIEWS.product({ id: 1001 }).html"), /class="stock-ok">12 left in stock</);
+  assert.match(s.run("VIEWS.product({ id: 1002 }).html"), /Only 3 left in stock\. Order soon\./);
+  s.run("cartAdd(1001, 1)");
+  assert.match(s.run("VIEWS.cart({}).html"), /12 left in stock/);
+  assert.match(withProducts([saved(1001, 10, { stock: 12 })], { lang: "ne" }).run("card(PM.get(1001))"), /स्टकमा १२ वटा बाँकी/);
+});
+
 test("search: every word must match; title beats department; the department filter narrows it", () => {
   const s = withProducts([saved(1001, 10, { title: "Blue Clay Vase", cat: "home" }), saved(1002, 10, { title: "Blue Running Shoes", cat: "sports" }),
     saved(1003, 10, { title: "Green Tea", cat: "grocery" })]);
@@ -201,13 +211,13 @@ test("search: every word must match; title beats department; the department filt
 });
 
 test("filters: price band, in stock, on sale and sorting", () => {
-  const s = withProducts([saved(1001, 10), saved(1002, 30, { usdWas: 40 }), saved(1003, 60, { stock: 0 })]);
+  const s = withProducts([saved(1001, rs(1500)), saved(1002, rs(4500), { usdWas: rs(6000) }), saved(1003, rs(9000), { stock: 0 })]);
   const ids = setup => { s.run("LF = fresh('test')"); Object.assign(s.run("LF"), setup); return plain(s.run("applyFilters(P)").map(p => p.id)); };
-  assert.deepEqual(ids({ band: "25-50" }), [1002]);
+  assert.deepEqual(ids({ band: "3800-7500" }), [1002]);
   assert.deepEqual(ids({ stock: true }), [1001, 1002]);
   assert.deepEqual(ids({ sale: true }), [1002]);
   assert.deepEqual(ids({ sort: "price-desc" }), [1003, 1002, 1001]);
-  assert.deepEqual(ids({ min: "20", max: "59" }), [1002]);
+  assert.deepEqual(ids({ min: "2000", max: "8999" }), [1002]);
 });
 
 /* ---------- cart, wish list, totals ---------- */
@@ -230,37 +240,37 @@ test("a cart saved by the older version (with a colour number) still works", () 
   assert.equal(s.run("state.cart[0].q"), 3);
 });
 
-test("totals: free delivery over the limit, coupons, express", () => {
-  const s = withProducts([saved(1001, 10)]);
+test("totals: free delivery over रू 5,300, coupons, express", () => {
+  const s = withProducts([saved(1001, rs(1000))]);
   const tot = () => plain(s.run("totals()"));
   const pick = ({ count, sub, off, ship, total, toFree }) => ({ count, sub, off, ship, total, toFree });
-  assert.deepEqual(pick(tot()), { count: 0, sub: 0, off: 0, ship: 0, total: 0, toFree: 35 });
+  assert.deepEqual(pick(tot()), { count: 0, sub: 0, off: 0, ship: 0, total: 0, toFree: 5300 });
   s.run("cartAdd(1001, 1)");
-  assert.deepEqual(pick(tot()), { count: 1, sub: 10, off: 0, ship: 4.99, total: 14.99, toFree: 25 });
+  assert.deepEqual(pick(tot()), { count: 1, sub: 1000, off: 0, ship: 750, total: 1750, toFree: 4300 });
   s.run("state.coupon = 'WELCOME10'");
-  assert.equal(tot().total, 13.99);
+  assert.equal(tot().total, 1650);
   s.run("state.coupon = 'FREESHIP'");
-  assert.equal(tot().total, 10);
-  s.run("state.coupon = null; cartSet(1001, 4)");
-  assert.equal(tot().ship, 0); // $40 is over $35
+  assert.equal(tot().total, 1000);
+  s.run("state.coupon = null; cartSet(1001, 6)");
+  assert.equal(tot().ship, 0); // रू 6,000 is over रू 5,300
   s.run("state.ship = 'exp'");
-  assert.equal(tot().ship, 12.99);
+  assert.equal(tot().ship, 2000);
 });
 
 test("delivery is free from exactly the limit, not just above it", () => {
-  const s = withProducts([saved(1001, 35), saved(1002, 34.99)]);
+  const s = withProducts([saved(1001, rs(5300)), saved(1002, rs(5299))]);
   s.run("cartAdd(1001, 1)");
   assert.equal(s.run("totals().ship"), 0);
   s.run("cartSet(1001, 0); cartAdd(1002, 1)");
-  assert.equal(s.run("totals().ship"), 4.99);
-  assert.equal(s.run("totals().toFree"), 0.01);
+  assert.equal(s.run("totals().ship"), 750);
+  assert.equal(s.run("totals().toFree"), 1);
 });
 
-test("totals in yen are whole numbers", () => {
-  const s = withProducts([saved(1001, 0.333)], { lang: "ja" }); // 52.72 yen -> 53
+test("totals are whole rupees", () => {
+  const s = withProducts([saved(1001, 0.333)], { lang: "ja" }); // 50.14 rupees -> 50
   s.run("cartAdd(1001, 3); state.coupon = 'WELCOME10'");
   const { sub, off, ship, total } = plain(s.run("totals()"));
-  assert.deepEqual({ sub, off, ship, total }, { sub: 159, off: 16, ship: 790, total: 933 });
+  assert.deepEqual({ sub, off, ship, total }, { sub: 150, off: 15, ship: 750, total: 885 });
 });
 
 test("wish list and recently viewed", () => {
@@ -273,15 +283,18 @@ test("wish list and recently viewed", () => {
   assert.deepEqual(plain(s.run("state.recent")), [1002, 1009, 1008, 1007, 1006, 1005, 1004, 1003]);
 });
 
-test("a demo order keeps the currency it was paid in and empties the cart", () => {
-  const s = withProducts([saved(1001, 10)], { lang: "ja" });
+test("a demo order is in rupees and empties the cart; an old order paid in yen still shows in yen", () => {
+  const old = { id: "BZ-111111", date: "2026-11-01T09:00:00.000Z", items: [{ id: 1001, q: 1, price: 1979 }], cur: "JPY",
+    sub: 1979, off: 0, ship: 0, total: 1979, eta: "Nov 3 to Nov 5", pay: "PayPay", to: { name: "Asha", place: "Tokyo, Japan" } };
+  const s = withProducts([saved(1001, rs(1000))], { lang: "ja", saved: { "bz:u1:orders": [old] } });
   s.run("cartAdd(1001, 2); placeOrder('BZ-123456', totals(), 'Visa ending 4242')");
   const o = plain(s.run("state.orders[0]"));
-  assert.equal(o.cur, "JPY");
-  assert.deepEqual(o.items, [{ id: 1001, q: 2, price: 1583 }]);
-  assert.equal(o.total, 3166 + 790);
+  assert.equal(o.cur, "NPR");
+  assert.deepEqual(o.items, [{ id: 1001, q: 2, price: 1000 }]);
+  assert.equal(o.total, 2000 + 750);
   assert.equal(s.run("state.cart.length"), 0);
-  assert.match(s.run("VIEWS.done({ id: 'BZ-123456' }).html"), /￥3,956/);
+  assert.match(s.run("VIEWS.done({ id: 'BZ-123456' }).html"), /रू 2,750/);
+  assert.match(s.run("VIEWS.done({ id: 'BZ-111111' }).html"), /￥1,979/);
 });
 
 /* ---------- pages, sign-in, owner ---------- */
@@ -342,7 +355,7 @@ test("profile page: Google sign-in only (no password form) and money spent in th
   const s = openStore({ saved: { "bz:u1:orders": [{ id: "BZ-1", total: 1583, cur: "JPY", items: [] }, { id: "BZ-2", total: 10, items: [] }] } });
   const html = s.run("VIEWS.account().html");
   assert.match(html, /<b>Google<\/b> <span class="muted">shopper@example\.com<\/span>/);
-  assert.match(html, /<b>\$20\.00<\/b><span>Spent<\/span>/); // ￥1,583 is about $10, and the old order was $10
+  assert.match(html, /<b>रू 3,012<\/b><span>Spent<\/span>/); // ￥1,583 and $10 are each about रू 1,506
   assert.doesNotMatch(html, /type="password"|data-act="pwopen"|data-act="emopen"/);
 });
 
@@ -373,9 +386,8 @@ test("demo card payment: only the test cards work, a real-looking card never doe
 });
 
 test("QR, konbini and bank payments are charged in yen", () => {
-  assert.equal(openStore().run("toYen(10)"), 1583);
-  assert.equal(openStore().run("yen(10)"), "￥1,583");
-  assert.equal(openStore({ lang: "ne" }).run("toYen(1506)"), 1583); // रू 1,506 is about $10
+  for (const lang of ["ne", "en"]) assert.equal(openStore({ lang }).run("toYen(1506)"), 1583, lang); // रू 1,506 is about $10
+  assert.equal(openStore().run("yen(1506)"), "￥1,583");
 });
 
 test("Sell form rules", () => {

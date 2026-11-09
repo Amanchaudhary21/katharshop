@@ -20,7 +20,7 @@ class SmallPartsTests {
 
 	@Test
 	void pricesAreRoundedTo4Decimals() {
-		assertEquals(12.6263, ShopApi.round4(1999 / 158.32));
+		assertEquals(13.2753, ShopApi.round4(1999 / 150.58)); // रू 1,999 in dollars
 		assertEquals(20.1235, ShopApi.round4(20.123456));
 		assertEquals(19.5, ShopApi.round4(19.5));
 	}

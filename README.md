@@ -152,7 +152,7 @@ Edit, save with Ctrl+S, then press F5 in the browser.
 
 - `public/index.html`: find `<span>shopnest</span>` and type your own shop name.
 - `public/js/core/data.js`: find `const FREE_SHIP_MIN` and change `shopFee(4.99)` to `shopFee(2.99)`.
-  Standard delivery now costs $2.99 (and the same, rounded, in rupees and yen).
+  Standard delivery now costs रू 450 (2.99 dollars, rounded to whole rupees).
 - `public/js/core/data.js`: change the words of a department in `CATS`. It changes everywhere.
 - `public/css/style.css`: the colors are the variables at the very top (`--brand`, `--accent` ...).
   The first block is the light theme; the dark theme blocks come right after it.
@@ -171,23 +171,23 @@ When you add new text, add it to all three files too; anything missing shows in 
 Text in `index.html` marked with `data-t` is translated the same way.
 Products you add with "Sell an item" keep the words you typed.
 
-### Prices in each language's currency
+### Prices: always Nepali rupees
 
-| Language | Currency | Example |
-| --- | --- | --- |
-| नेपाली | Nepali rupee | रू १,९९९ |
-| English | US dollar | $13.28 |
-| हिन्दी | Indian rupee | ₹1,249 |
-| 日本語 | Japanese yen | ￥2,102 |
+Every price is in Nepali rupees, in every language. Only the digits follow the language:
+रू १,९९९ in नेपाली, रू 1,999 in English, हिन्दी and 日本語.
 
-Prices are saved in US dollars (also in MySQL), and the store converts them when it shows them,
-so changing the language changes every price by itself. On the Sell page you type the price in your
-language's currency; it is saved in dollars with 4 decimals, so it comes back exactly as you typed it.
-Delivery fees and the free-delivery limit become round numbers in each currency (रू 5,300, ₹3,300, ￥5,500).
-Orders keep the currency they were paid in.
+On the Sell page you type the price in rupees. It is saved in US dollars with 4 decimals (also in MySQL),
+so it comes back exactly as you typed it. Delivery: free from रू 5,300, otherwise रू 750 (express रू 2,000).
+Orders placed before the shop used rupees only keep the currency they were paid in.
 
-The exchange rates are `CURRENCIES` at the top of `public/js/core/data.js` (how much 1 US dollar is).
-Change a rate there and every price follows.
+The rupee rate is `CURRENCIES.ne` at the top of `public/js/core/data.js` (how much 1 US dollar is).
+Don't change it once the shop has products: every price would change with it.
+
+### How many are left
+
+Every product card shows how many are left in stock ("12 left in stock"). From 5 down it turns orange:
+"Only 3 left in stock". The product page and the cart show the number too. The number is the stock the owner
+typed on the Sell page; demo orders don't lower it (they are saved only in the shopper's browser).
 
 ## Signing in
 

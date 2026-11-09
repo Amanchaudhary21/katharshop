@@ -86,10 +86,10 @@ VIEWS.home = () => {
 };
 
 /* ---------- Product lists: category, deals, search ---------- */
-/* Price filter: 25, 50, 100 and 250 dollars, as round numbers in the shopper's currency (रू 3,800, ￥4,000 ...) */
+/* Price filter: 25, 50, 100 and 250 dollars, as round numbers in rupees (रू 3,800, रू 7,500 ...) */
 const PRICE_BANDS = (() => {
   const [a, b, c, d] = [25, 50, 100, 250].map(shopFee);
-  const m = x => Number.isInteger(x) ? CUR.symbol + fmtNum(x) : money(x); // "$25", not "$25.00"
+  const m = x => Number.isInteger(x) ? CUR.symbol + fmtNum(x) : money(x); // "रू 3,800", without decimals
   const range = (x, y) => t("{min} to {max}", { min: m(x), max: m(y) });
   return [["", t("Any price")], [`0-${a}`, t("Under {amount}", { amount: m(a) })], [`${a}-${b}`, range(a, b)],
     [`${b}-${c}`, range(b, c)], [`${c}-${d}`, range(c, d)], [`${d}-`, t("{amount} and above", { amount: m(d) })]];

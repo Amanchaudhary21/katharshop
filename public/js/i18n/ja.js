@@ -204,6 +204,7 @@ I18N.ja = {
   "Total": "合計",
   "Demo store: no payment is taken and nothing ships.": "デモストアです。支払いも発送もありません。",
   "Only {n} left in stock": "残り {n} 点",
+  "{n} left in stock": "在庫 {n} 点",
   "Decrease quantity of {name}": "{name} の数量を減らす",
   "Increase quantity of {name}": "{name} の数量を増やす",
   "Move to wish list": "ほしい物リストに移動",

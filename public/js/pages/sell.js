@@ -73,7 +73,7 @@ VIEWS.sell = (r = {}) => {
       <section class="panel stack" aria-labelledby="h-info"><h2 id="h-info" style="${H2S}">2. ${t("Details")}</h2>
         <div class="form-grid">
           <div class="wide">${sellField("title", t("Item name"), `type="text" maxlength="90" value="${esc(r.title || "")}"`)}</div>
-          ${/* the price is typed in the shopper's currency (dollars, rupees or yen) and saved in US dollars */
+          ${/* the price is typed in rupees and saved in US dollars */
             sellField("price", t("Price ({symbol})", { symbol: CUR.symbol.trim() }), CUR.digits ? 'type="number" min="0.01" step="0.01" inputmode="decimal"' : 'type="number" min="1" step="1" inputmode="numeric"')}
           ${sellField("stock", t("How many in stock"), 'type="number" min="0" step="1" value="10" inputmode="numeric"')}
           <div class="field wide"><label for="sl_cat">${t("Department")}</label><select id="sl_cat" name="cat">${CATS.map(c => `<option value="${c.id}" ${c.id === r.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>

@@ -204,6 +204,7 @@ I18N.ne = {
   "Total": "जम्मा",
   "Demo store: no payment is taken and nothing ships.": "डेमो पसल: कुनै भुक्तानी लिइँदैन र केही पनि पठाइँदैन।",
   "Only {n} left in stock": "स्टकमा {n} वटा मात्र बाँकी",
+  "{n} left in stock": "स्टकमा {n} वटा बाँकी",
   "Decrease quantity of {name}": "{name} को संख्या घटाउनुहोस्",
   "Increase quantity of {name}": "{name} को संख्या बढाउनुहोस्",
   "Move to wish list": "इच्छा सूचीमा सार्नुहोस्",

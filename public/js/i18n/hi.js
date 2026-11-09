@@ -204,6 +204,7 @@ I18N.hi = {
   "Total": "कुल",
   "Demo store: no payment is taken and nothing ships.": "डेमो स्टोर: कोई भुगतान नहीं लिया जाता और कुछ भी नहीं भेजा जाता।",
   "Only {n} left in stock": "स्टॉक में केवल {n} बचे",
+  "{n} left in stock": "स्टॉक में {n} बचे",
   "Decrease quantity of {name}": "{name} की मात्रा घटाएँ",
   "Increase quantity of {name}": "{name} की मात्रा बढ़ाएँ",
   "Move to wish list": "विश लिस्ट में डालें",

@@ -139,13 +139,13 @@ class MySqlTests {
 	}
 
 	@Test
-	void pricesKeep4DecimalsSoAPriceTypedInRupeesOrYenConvertsBackExactly() throws Exception {
-		// ￥1,999 at 158.32 yen to the dollar = 12.62633... dollars -> saved as 12.6263 -> shown as ￥1,999 again
-		Map<String, Object> p = client.call("POST", "/api/products", vase("price", 1999 / 158.32, "was", 0), asOwner()).json();
-		assertEquals(12.6263, p.get("price"));
-		assertEquals(1999, Math.round(12.6263 * 158.32));
+	void pricesKeep4DecimalsSoAPriceTypedInRupeesConvertsBackExactly() throws Exception {
+		// रू 1,999 at 150.58 rupees to the dollar = 13.27533... dollars -> saved as 13.2753 -> shown as रू 1,999 again
+		Map<String, Object> p = client.call("POST", "/api/products", vase("price", 1999 / 150.58, "was", 0), asOwner()).json();
+		assertEquals(13.2753, p.get("price"));
+		assertEquals(1999, Math.round(13.2753 * 150.58));
 		long id = ((Number) p.get("id")).longValue();
-		assertEquals(0, new BigDecimal("12.6263").compareTo(db.queryForObject("SELECT price FROM products WHERE id = ?", BigDecimal.class, id)));
+		assertEquals(0, new BigDecimal("13.2753").compareTo(db.queryForObject("SELECT price FROM products WHERE id = ?", BigDecimal.class, id)));
 		client.call("DELETE", "/api/products/" + id, null, asOwner());
 	}
 

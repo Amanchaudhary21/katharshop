@@ -37,7 +37,7 @@ function cartLine(l) {
     <a class="line-art" href="#/p/${p.id}" tabindex="-1" aria-hidden="true">${art(p)}</a>
     <div class="line-info">
       <a href="#/p/${p.id}">${esc(p.title)}</a>
-      ${p.stock <= 5 ? `<span class="stock-low">${t("Only {n} left in stock", { n: num(p.stock) })}</span>` : `<span class="stock-ok">${t("In stock")}</span>`}
+      ${stockLeft(p)}
       <div class="row">
         <div class="qty"><button type="button" data-act="cqty" ${key} data-d="-1" aria-label="${t("Decrease quantity of {name}", { name: esc(p.title) })}" ${l.q <= 1 ? "disabled" : ""}>-</button><output aria-label="${t("Quantity")}">${num(l.q)}</output><button type="button" data-act="cqty" ${key} data-d="1" aria-label="${t("Increase quantity of {name}", { name: esc(p.title) })}" ${l.q >= maxQty(p) ? "disabled" : ""}>+</button></div>
         <button class="link" type="button" data-act="cremove" ${key}>${t("Remove")}</button>

@@ -7,7 +7,7 @@
 const FORM = {};
 let pdp = { id: 0, q: 1 }, revStars = 0;
 const deliveryRange = fast => (fast ? t("{min} to {max}", { min: when(addDays(1)), max: when(addDays(2)) }) : t("{min} to {max}", { min: when(addDays(3)), max: when(addDays(5)) }));
-const stockHtml = p => (p.stock < 1 ? `<p class="stock-out">${t("Currently unavailable")}</p>` : p.stock <= 5 ? `<p class="stock-low">${t("Only {n} left in stock. Order soon.", { n: num(p.stock) })}</p>` : `<p class="stock-ok">${t("In stock")}</p>`);
+const stockHtml = p => (p.stock < 1 ? `<p class="stock-out">${t("Currently unavailable")}</p>` : p.stock <= 5 ? `<p class="stock-low">${t("Only {n} left in stock. Order soon.", { n: num(p.stock) })}</p>` : `<p class="stock-ok">${t("{n} left in stock", { n: num(p.stock) })}</p>`);
 const notFound = () => ({ html: emptyState(t("We could not find that page"), t("The product may have moved, or the link is old."), "#/", t("Back to the shop")) });
 
 function reviewItems(p) {

@@ -300,6 +300,7 @@ textarea { min-height: 90px; resize: vertical; }
 .stock-ok { color: var(--good); font-weight: 700; }
 .stock-low { color: var(--warn); font-weight: 700; }
 .stock-out { color: var(--bad); font-weight: 700; }
+.card .stock-ok, .card .stock-low { font-size: .8rem; } /* "12 left in stock" on product cards */
 .reviews { display: grid; gap: 12px; }
 .review { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
 .starpick { display: inline-flex; gap: 2px; }

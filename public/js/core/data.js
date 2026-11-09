@@ -7,17 +7,19 @@
 /* ---------- Store settings (edit freely) ---------- */
 const BRAND = "ShopNest";
 
-/* ---------- Money: each language shows prices in its own currency ----------
-   Prices are saved in US dollars (also in the shop server's MySQL). The store converts them with
-   "rate" = how much 1 US dollar is, so every price changes by itself when the language changes.
-   Rates from exchangerate-api.com on 8 Nov 2026. Change a rate here and every price follows. */
+/* ---------- Money: every price is in Nepali rupees (रू), in every language ----------
+   Prices are saved in US dollars (also in the shop server's MySQL) and shown in rupees with
+   "rate" = how much 1 US dollar is. A price typed on the Sell page comes back exactly as typed.
+   Don't change the NPR rate once the shop has products: every price would change with it.
+   The other currencies are only for orders placed before the shop used rupees only, and for the
+   Japanese payment methods at checkout (they charge in yen). Rates from exchangerate-api.com on 8 Nov 2026. */
 const CURRENCIES = {
   en: { code: "USD", symbol: "$", rate: 1, digits: 2 },
   ne: { code: "NPR", symbol: "रू ", rate: 150.58, digits: 0 },
   hi: { code: "INR", symbol: "₹", rate: 94.11, digits: 0 },
   ja: { code: "JPY", symbol: "￥", rate: 158.32, digits: 0 }
 };
-const CUR = CURRENCIES[LANG] || CURRENCIES.en;
+const CUR = CURRENCIES.ne; // the shop's currency
 const CUR_BY_CODE = Object.fromEntries(Object.values(CURRENCIES).map(c => [c.code, c]));
 /* round the way this currency is shown: dollars to cents, rupees and yen to whole numbers */
 const roundCur = n => { const f = 10 ** CUR.digits; return Math.round(n * f) / f; };
@@ -25,13 +27,14 @@ const toCur = usd => roundCur(usd * CUR.rate);                         // US dol
 const toUsd = amount => Math.round(amount / CUR.rate * 10000) / 10000; // shopper's currency -> US dollars
 /* an amount in another currency (an old order's) -> the shopper's currency */
 const fromCur = (amount, code) => roundCur(amount / (CUR_BY_CODE[code] || CURRENCIES.en).rate * CUR.rate);
-/* An amount of money, like $12.50, रू १,८८२, ₹1,176 or ￥1,979. code: show it in that currency instead. */
+/* An amount of money: रू १,८८२ in Nepali, रू 1,882 in the other languages.
+   code: show it in that currency instead (an old order paid in $12.50, a yen payment ￥1,979). */
 function money(n, code) {
   const c = (code && CUR_BY_CODE[code]) || CUR;
   return (n < 0 ? "-" : "") + c.symbol + fmtNum(Math.abs(n), { minimumFractionDigits: c.digits, maximumFractionDigits: c.digits });
 }
 /* Delivery, written in US dollars: free over FREE_SHIP_MIN, otherwise standard or express.
-   Other currencies get round numbers (35 dollars = रू 5,300, ₹3,300, ￥5,500). */
+   In rupees they become round numbers: 35 dollars = रू 5,300, 4.99 = रू 750, 12.99 = रू 2,000. */
 const shopFee = usd => CUR.rate === 1 ? usd : Number((usd * CUR.rate).toPrecision(2));
 const FREE_SHIP_MIN = shopFee(35), SHIP_STD = shopFee(4.99), SHIP_EXP = shopFee(12.99);
 const COUPONS = {
