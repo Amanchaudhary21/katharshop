@@ -53,7 +53,7 @@ I18N.ne = {
   "Privacy": "गोपनीयता",
   "Sign in with Google is not set up yet.": "Google बाट साइन इन अझै सेटअप भएको छैन।",
   "Add your Google Client ID at the top of js/core/auth.js.": "js/core/auth.js को माथि आफ्नो Google Client ID थप्नुहोस्।",
-  "Open the store with start.bat or npm start instead of double-clicking index.html.": "index.html मा डबल-क्लिक नगरी start.bat वा npm start बाट पसल खोल्नुहोस्।",
+  "Open the store with start.bat instead of double-clicking index.html.": "index.html मा डबल-क्लिक नगरी start.bat बाट पसल खोल्नुहोस्।",
   "See README.md.": "README.md हेर्नुहोस्।",
   "Loading Google sign-in…": "Google साइन-इन लोड हुँदैछ…",
   "Could not reach Google. Check your internet connection.": "Google सम्म पुग्न सकिएन। इन्टरनेट जडान जाँच्नुहोस्।",
@@ -81,7 +81,7 @@ I18N.ne = {
   "Added to your cart": "कार्टमा थपियो",
   "The shop server needs your owner password again (Sell page).": "पसलको सर्भरलाई फेरि तपाईंको मालिक पासवर्ड चाहिन्छ (बेच्ने पेज)।",
   "The shop server could not do that (error {n}).": "पसलको सर्भरले यो गर्न सकेन (त्रुटि {n})।",
-  "Can't reach the shop server. Is it running? (start.bat or npm start)": "पसलको सर्भरमा पुग्न सकिएन। के यो चलिरहेको छ? (start.bat / npm start)",
+  "Can't reach the shop server. Is it running? (start.bat)": "पसलको सर्भरमा पुग्न सकिएन। के यो चलिरहेको छ? (start.bat)",
 
   // ---------- home and lists ----------
   "Play slideshow": "स्लाइडसो चलाउनुहोस्",

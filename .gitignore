@@ -1,4 +1,8 @@
 node_modules/
+# the Java server's build output (made by mvnw)
+backend/target/
+.idea/
+*.iml
 .vscode/
 .DS_Store
 Thumbs.db

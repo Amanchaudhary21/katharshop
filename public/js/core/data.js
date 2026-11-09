@@ -56,11 +56,11 @@ const mk = (id, cat, art, title, price, was, rating, n, stock, colors, bullets, 
 /* The products. The shop starts empty: the owner adds products on the "Sell an item" page
    (js/pages/sell.js), and they are saved in the shop server's MySQL database. */
 const P = [];
-/* The shop server (server.js: Node.js + Express + MySQL) keeps the products in MySQL, so what the
+/* The shop server (the backend folder: Java + Spring Boot + MySQL) keeps the products in MySQL, so what the
    owner adds or deletes is the same on every device.
    - Opened from the server itself (http://localhost:8080 or its ngrok link): it uses that server.
    - Opened on the live site (GitHub Pages): it uses SHOP_SERVER, the ngrok link to your laptop
-     (NGROK_DOMAIN in .env; server.js prints it when it starts). When the laptop is off, the store
+     (NGROK_DOMAIN in .env; the server prints it when it starts). When the laptop is off, the store
      shows the products it saw last. Empty = no server: added items stay in the owner's browser. */
 const SHOP_SERVER = "";
 const API_URL = !location.protocol.startsWith("http") ? ""

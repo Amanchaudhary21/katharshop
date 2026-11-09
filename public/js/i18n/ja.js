@@ -53,7 +53,7 @@ I18N.ja = {
   "Privacy": "プライバシー",
   "Sign in with Google is not set up yet.": "Google でのサインインはまだ設定されていません。",
   "Add your Google Client ID at the top of js/core/auth.js.": "js/core/auth.js の先頭に Google Client ID を追加してください。",
-  "Open the store with start.bat or npm start instead of double-clicking index.html.": "index.html をダブルクリックせず、start.bat または npm start でストアを開いてください。",
+  "Open the store with start.bat instead of double-clicking index.html.": "index.html をダブルクリックせず、start.bat でストアを開いてください。",
   "See README.md.": "詳しくは README.md をご覧ください。",
   "Loading Google sign-in…": "Google サインインを読み込み中…",
   "Could not reach Google. Check your internet connection.": "Google に接続できませんでした。インターネット接続を確認してください。",
@@ -81,7 +81,7 @@ I18N.ja = {
   "Added to your cart": "カートに追加しました",
   "The shop server needs your owner password again (Sell page).": "ショップサーバーにオーナーパスワードを再入力してください (出品ページ)。",
   "The shop server could not do that (error {n}).": "ショップサーバーで処理できませんでした (エラー {n})。",
-  "Can't reach the shop server. Is it running? (start.bat or npm start)": "ショップサーバーに接続できません。起動していますか? (start.bat / npm start)",
+  "Can't reach the shop server. Is it running? (start.bat)": "ショップサーバーに接続できません。起動していますか? (start.bat)",
 
   // ---------- home and lists ----------
   "Play slideshow": "スライドショーを再生",

@@ -53,7 +53,7 @@ I18N.hi = {
   "Privacy": "गोपनीयता",
   "Sign in with Google is not set up yet.": "Google से साइन इन अभी सेट अप नहीं है।",
   "Add your Google Client ID at the top of js/core/auth.js.": "js/core/auth.js में सबसे ऊपर अपना Google Client ID जोड़ें।",
-  "Open the store with start.bat or npm start instead of double-clicking index.html.": "index.html पर डबल-क्लिक करने के बजाय start.bat या npm start से स्टोर खोलें।",
+  "Open the store with start.bat instead of double-clicking index.html.": "index.html पर डबल-क्लिक करने के बजाय start.bat से स्टोर खोलें।",
   "See README.md.": "README.md देखें।",
   "Loading Google sign-in…": "Google साइन-इन लोड हो रहा है…",
   "Could not reach Google. Check your internet connection.": "Google तक नहीं पहुँच सके। अपना इंटरनेट कनेक्शन जाँचें।",
@@ -81,7 +81,7 @@ I18N.hi = {
   "Added to your cart": "कार्ट में जोड़ा गया",
   "The shop server needs your owner password again (Sell page).": "दुकान के सर्वर को फिर से आपका मालिक पासवर्ड चाहिए (बेचें पेज)।",
   "The shop server could not do that (error {n}).": "दुकान का सर्वर यह नहीं कर सका (त्रुटि {n})।",
-  "Can't reach the shop server. Is it running? (start.bat or npm start)": "दुकान के सर्वर तक नहीं पहुँच सके। क्या वह चल रहा है? (start.bat / npm start)",
+  "Can't reach the shop server. Is it running? (start.bat)": "दुकान के सर्वर तक नहीं पहुँच सके। क्या वह चल रहा है? (start.bat)",
 
   // ---------- home and lists ----------
   "Play slideshow": "स्लाइडशो चलाएँ",

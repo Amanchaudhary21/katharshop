@@ -10,7 +10,7 @@
    Paste your own Google "OAuth client ID" between the quotes to turn on the
    "Sign in with Google" button. README.md explains how to get one (free).
    Google sign-in works on the live site (https://amanchaudhary21.github.io) and on
-   http://localhost:8080 (start.bat / npm start), as long as both addresses are listed
+   http://localhost:8080 (start.bat), as long as both addresses are listed
    under "Authorized JavaScript origins" for your Client ID. It does not work when
    index.html is opened by double-clicking it. */
 const GOOGLE_CLIENT_ID = "1014530565910-58qe3k87k41h70bpdu61qc2tckepdths.apps.googleusercontent.com";
@@ -97,7 +97,7 @@ function showLogin() {
   /* Google's own button. It needs your Client ID (top of this file) and a http:// address. */
   function mountGoogle(slot) {
     if (!GOOGLE_CLIENT_ID || location.protocol === "file:") {
-      slot.innerHTML = `<p class="g-setup"><b>${t("Sign in with Google is not set up yet.")}</b> ${!GOOGLE_CLIENT_ID ? t("Add your Google Client ID at the top of js/core/auth.js.") : ""} ${location.protocol === "file:" ? t("Open the store with start.bat or npm start instead of double-clicking index.html.") : ""} ${t("See README.md.")}</p>`;
+      slot.innerHTML = `<p class="g-setup"><b>${t("Sign in with Google is not set up yet.")}</b> ${!GOOGLE_CLIENT_ID ? t("Add your Google Client ID at the top of js/core/auth.js.") : ""} ${location.protocol === "file:" ? t("Open the store with start.bat instead of double-clicking index.html.") : ""} ${t("See README.md.")}</p>`;
       return;
     }
     slot.innerHTML = `<div class="g-loading"><span class="g-spin" aria-hidden="true"></span>${t("Loading Google sign-in…")}</div>`;

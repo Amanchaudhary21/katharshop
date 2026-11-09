@@ -120,7 +120,7 @@ async function api(path, opts = {}) {
   if (!res.ok) throw Object.assign(new Error("Server error " + res.status), { status: res.status });
   return res.json();
 }
-/* A product the owner added, as the server sends it (toJson in server/api.js) */
+/* A product the owner added, as the server sends it (toJson in backend/src/main/java/com/shopnest/ShopApi.java) */
 const fromServer = j => inShopCurrency(Object.assign(
   mk(j.id, j.cat, j.art || "box", j.title, j.price, j.was, j.rating, j.n, j.stock, j.colors, j.bullets, j.specs, j.kw, j.age),
   { photo: j.photo, mine: true, created: j.created, usd: j.price, usdWas: j.was || 0 })); // the server's prices are in US dollars
@@ -131,7 +131,7 @@ const saveSrvAdded = () => {
 };
 function serverError(e) {
   if (e.status === 401) { try { localStorage.removeItem("bz:ownerToken"); } catch (x) { /* blocked */ } return t("The shop server needs your owner password again (Sell page)."); }
-  return e.status ? t("The shop server could not do that (error {n}).", { n: e.status }) : t("Can't reach the shop server. Is it running? (start.bat or npm start)");
+  return e.status ? t("The shop server could not do that (error {n}).", { n: e.status }) : t("Can't reach the shop server. Is it running? (start.bat)");
 }
 
 /* Added to cart: a copy of the product photo flies into the cart icon, then the icon bounces with a tick */
